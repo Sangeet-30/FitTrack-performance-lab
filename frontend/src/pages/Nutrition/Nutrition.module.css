@@ -1,0 +1,139 @@
+
+
+.nutrition-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.nutrition-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.nutrition-card {
+  padding: 18px;
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 20px;
+}
+
+.meal-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.meal-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.meal-item strong {
+  color: #0f172a;
+}
+
+.meal-item small {
+  display: block;
+  margin-top: 4px;
+  color: #475569;
+}
+
+.meal-item span {
+  font-weight: 700;
+  color: #334155;
+}
+
+.macro-list-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.macro-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.macro-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: #334155;
+}
+
+.macro-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.macro-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.water-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.water-level {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+  min-height: 120px;
+}
+
+.water-glass {
+  flex: 1;
+  background: linear-gradient(180deg, #dbeafe, #bfdbfe);
+  border-radius: 12px 12px 18px 18px;
+  border: 1px solid #93c5fd;
+  position: relative;
+  overflow: hidden;
+}
+
+.water-glass::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 70%;
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.8), rgba(59, 130, 246, 0.7));
+}
+
+.water-glass:nth-child(1)::before { height: 55%; }
+.water-glass:nth-child(2)::before { height: 70%; }
+.water-glass:nth-child(3)::before { height: 80%; }
+.water-glass:nth-child(4)::before { height: 90%; }
+.water-glass:nth-child(5)::before { height: 100%; }
+.water-glass:nth-child(6)::before { height: 72%; }
+.water-glass:nth-child(7)::before { height: 85%; }
+
+.water-glass[data-filled="false"]::before { height: 0; }
+
+.water-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #334155;
+  font-weight: 600;
+}

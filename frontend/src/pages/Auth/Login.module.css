@@ -1,0 +1,24 @@
+
+
+.auth-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: #475569;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #0f766e;
+  font-weight: 600;
+  cursor: pointer;
+}

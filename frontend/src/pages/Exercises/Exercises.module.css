@@ -1,0 +1,61 @@
+.exercise-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.exercise-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 22px;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.exercise-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(239, 68, 68, 0.45);
+  box-shadow: 0 10px 25px -5px var(--accent-red-glow);
+}
+
+.exercise-card-top {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.exercise-card h3 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.exercise-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.exercise-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+}

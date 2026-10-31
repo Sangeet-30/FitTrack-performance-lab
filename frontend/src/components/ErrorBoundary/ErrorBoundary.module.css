@@ -1,0 +1,23 @@
+.error-page {
+  color: #0f172a;
+}
+
+.error-card h1 {
+  margin: 0 0 12px;
+  color: #0f172a;
+}
+
+.error-card > p:not(.eyebrow) {
+  color: #475569;
+}
+
+.error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.error-actions a {
+  text-decoration: none;
+}

@@ -1,0 +1,654 @@
+.landingPage {
+  min-height: 100vh;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  font-family: inherit;
+  padding: 0 2rem 5rem;
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.landingContainer {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+/* Navigation */
+.landingNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+  transition: border-color 0.25s ease;
+}
+
+.brandLogo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--text-main);
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  transition: color 0.25s ease;
+}
+
+.brandSlashes {
+  color: #dc2626;
+  font-weight: 900;
+  letter-spacing: -0.1em;
+  font-size: 1.35rem;
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.signInLink {
+  color: var(--text-main);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+
+.signInLink:hover {
+  color: #dc2626;
+}
+
+.startFreeBtn {
+  background-color: #dc2626;
+  color: #ffffff;
+  padding: 0.65rem 1.35rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+.startFreeBtn:hover {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.signOutBtn {
+  background-color: var(--bg-card-subtle);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 0.65rem 1.25rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.signOutBtn:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+/* Hero Section */
+.heroSection {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 2rem;
+  align-items: center;
+  padding: 4.5rem 0 3.5rem;
+  position: relative;
+}
+
+.heroLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.heroEyebrow {
+  font-family: monospace, ui-monospace, sans-serif;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  font-size: clamp(3.2rem, 5.8vw, 4.8rem);
+  font-weight: 900;
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+  color: var(--text-main);
+  margin: 0;
+  text-transform: uppercase;
+  transition: color 0.25s ease;
+}
+
+.titleDot {
+  display: inline-block;
+  width: 0.72rem;
+  height: 0.72rem;
+  background-color: #dc2626;
+  margin-left: 0.15rem;
+  vertical-align: baseline;
+}
+
+.heroSubtitle {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  max-width: 480px;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.heroCtaRow {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  margin-top: 0.5rem;
+}
+
+.primaryCta {
+  background-color: #dc2626;
+  color: #ffffff;
+  padding: 0.875rem 1.75rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+}
+
+.primaryCta:hover {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.45);
+}
+
+.secondaryCta {
+  background: transparent;
+  color: var(--text-main);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.secondaryCta:hover {
+  color: #dc2626;
+  border-bottom-color: #dc2626;
+}
+
+/* Mockup Display Cards (Right Column) */
+.heroRight {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.hudCardsArea {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mockupGrid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.35fr;
+  gap: 1rem;
+}
+
+.hudCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.04);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+:global(html.dark) .hudCard {
+  background: #111114;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.cardTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-family: monospace, sans-serif;
+}
+
+.cardTag {
+  font-size: 0.7rem;
+  color: var(--text-subtle);
+}
+
+/* Recovery Card */
+.recoveryGaugeWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0;
+}
+
+.gaugeCircle {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.gaugeSvg {
+  transform: rotate(-90deg);
+  position: absolute;
+  inset: 0;
+}
+
+.gaugeBgCircle {
+  stroke: var(--border-color);
+  transition: stroke 0.25s ease;
+}
+
+:global(html.dark) .gaugeBgCircle {
+  stroke: #27272a;
+}
+
+.gaugeScore {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+.gaugeStatus {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  text-transform: uppercase;
+}
+
+.recoveryMetrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.metricItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+}
+
+.metricLabel {
+  color: var(--text-muted);
+  font-family: monospace, sans-serif;
+  font-size: 0.7rem;
+}
+
+.metricValue {
+  color: var(--text-main);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.trendGreen {
+  color: #16a34a;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* Calendar Card */
+.calDaysHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  font-family: monospace, sans-serif;
+}
+
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.65rem;
+  justify-items: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.calDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: var(--border-color);
+  transition: background-color 0.25s ease;
+}
+
+:global(html.dark) .calDot {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.calDotActive {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #dc2626;
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.5);
+}
+
+.calDotToday {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #dc2626;
+  background: transparent;
+}
+
+.calLegend {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.legendDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 0.25rem;
+}
+
+.legendRestDot {
+  background: var(--border-color);
+}
+
+:global(html.dark) .legendRestDot {
+  background: #71717a;
+}
+
+/* Weekly Volume Chart Card */
+.volumeCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.04);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+:global(html.dark) .volumeCard {
+  background: #111114;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+.volumeStatBlock {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.volumeBigNum {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.volumeUnit {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-left: 0.4rem;
+}
+
+.volumeBadge {
+  color: #16a34a;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: monospace, sans-serif;
+}
+
+.volumeSvgWrap {
+  width: 100%;
+  height: 90px;
+}
+
+/* Right HUD Accents Rail */
+.sideRail {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  width: 72px;
+  flex-shrink: 0;
+}
+
+.hudSideIndicator {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-family: monospace, ui-monospace, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-subtle);
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+
+.hudSideIndicator span {
+  transition: color 0.18s ease;
+}
+
+.hudSideIndicator span:hover {
+  color: #dc2626;
+}
+
+.railTrack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  margin: 1.25rem 0;
+  opacity: 0.45;
+}
+
+.railLine {
+  width: 1px;
+  flex: 1;
+  background: var(--border-color);
+}
+
+.railDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #dc2626;
+}
+
+.disciplineBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-family: monospace, ui-monospace, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  line-height: 1.35;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.disciplineRedAccent {
+  color: #dc2626;
+  font-size: 0.75rem;
+  font-weight: 900;
+  margin-bottom: 2px;
+}
+
+/* 3-Column System Section */
+.systemSection {
+  padding: 4.5rem 0 2rem;
+}
+
+.systemHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1.25rem;
+  transition: border-color 0.25s ease;
+}
+
+.systemTitle {
+  font-size: clamp(1.75rem, 3vw, 2.4rem);
+  font-weight: 900;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin: 0;
+  transition: color 0.25s ease;
+}
+
+.systemSubtitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-family: monospace, sans-serif;
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.stepCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+:global(html.dark) .stepCard {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.stepHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.stepNum {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.stepDash {
+  width: 24px;
+  height: 2px;
+  background-color: #dc2626;
+}
+
+.stepHeading {
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: var(--text-main);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.stepDescription {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .heroSection {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .stepsGrid {
+    grid-template-columns: 1fr;
+  }
+  .sideRail {
+    display: none;
+  }
+}

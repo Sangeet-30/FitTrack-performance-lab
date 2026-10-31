@@ -1,0 +1,91 @@
+.detail-hero {
+  padding: 24px;
+}
+
+.detail-badge-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.detail-hero-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 20px;
+  align-items: center;
+}
+
+.detail-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.detail-metrics div {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 14px;
+  border-radius: 14px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+}
+
+.detail-metrics strong {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.detail-metrics span {
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-size: 0.85rem;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.exercise-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.exercise-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  transition: border-color 0.15s ease;
+}
+
+.exercise-list li:hover {
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.exercise-list span {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.exercise-list strong {
+  color: var(--accent-red);
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .detail-hero-grid,
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

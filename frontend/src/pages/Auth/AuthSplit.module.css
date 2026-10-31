@@ -1,0 +1,566 @@
+.authPage {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  overflow-x: hidden;
+  position: relative;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Left Performance Lab Panel (Dark Pitch Black) */
+.leftPanel {
+  width: 42%;
+  background-color: #09090b;
+  color: #fafafa;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 44px 48px;
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
+}
+
+.leftHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.leftLogo {
+  font-weight: 900;
+  font-size: 1.3rem;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.leftLogoRed {
+  color: #dc2626;
+}
+
+.leftLabBadge {
+  font-family: monospace, ui-monospace, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #71717a;
+  text-transform: uppercase;
+}
+
+/* Hero Center Content */
+.leftHero {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin: auto 0;
+  padding: 24px 0;
+}
+
+.leftEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #dc2626;
+  font-family: monospace, ui-monospace, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.leftDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #dc2626;
+  display: inline-block;
+}
+
+.leftTitle {
+  font-family: "Impact", "Anton", "Arial Black", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(3.2rem, 4.4vw, 4.5rem);
+  line-height: 0.95;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin: 0;
+  color: #ffffff;
+}
+
+.titleHighlight {
+  color: #dc2626;
+}
+
+.titleDotAccent {
+  color: #dc2626;
+}
+
+.leftSubtitle {
+  font-size: 0.96rem;
+  line-height: 1.55;
+  color: #a1a1aa;
+  margin: 0;
+  max-width: 380px;
+}
+
+/* Analytics Widget Card */
+.widgetCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-top: 0.75rem;
+}
+
+.widgetHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 14px;
+}
+
+.widgetLabel {
+  font-family: monospace, ui-monospace, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #71717a;
+  text-transform: uppercase;
+}
+
+.widgetStat {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #dc2626;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.widgetStatWhite {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.widgetStatSub {
+  font-size: 0.65rem;
+  color: #71717a;
+  display: block;
+  text-align: right;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+
+/* Consistency / Progress Bar Chart */
+.barChartGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  align-items: flex-end;
+  height: 84px;
+  margin-bottom: 8px;
+}
+
+.barCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 6px;
+}
+
+.barTrack {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.barFillRed {
+  width: 100%;
+  background-color: #dc2626;
+  border-radius: 2px 2px 0 0;
+  transition: height 0.4s ease;
+}
+
+.barFillGray {
+  width: 100%;
+  background-color: #27272a;
+  border-radius: 2px 2px 0 0;
+}
+
+.barDay {
+  font-family: monospace, ui-monospace, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #71717a;
+  text-transform: uppercase;
+}
+
+/* Stats Triplet Row (for Signup Left Panel) */
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statNum {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.statLabel {
+  font-family: monospace, ui-monospace, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #71717a;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Left Footer */
+.leftFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: monospace, ui-monospace, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #52525b;
+  letter-spacing: 0.12em;
+}
+
+/* Right Form Panel */
+.rightPanel {
+  flex: 1;
+  background-color: var(--bg-page);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 38px 48px;
+  position: relative;
+  overflow-y: auto;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.rightTopNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.backHomeLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.backHomeLink:hover {
+  color: #dc2626;
+}
+
+.mobileBrandBlock {
+  display: none;
+}
+
+.formWrapper {
+  width: 100%;
+  max-width: 440px;
+  margin: auto;
+  padding: 12px 0 28px;
+  box-sizing: border-box;
+}
+
+.formHeader {
+  margin-bottom: 24px;
+}
+
+.formEyebrow {
+  color: #dc2626;
+  font-family: monospace, ui-monospace, sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+
+.formTitle {
+  margin: 0;
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text-main);
+  line-height: 1.15;
+}
+
+.formTitleDot {
+  color: #dc2626;
+}
+
+/* Inputs & Form Elements */
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inputLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.textInput {
+  width: 100%;
+  min-height: 44px;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.94rem;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  box-sizing: border-box;
+}
+
+.textInput:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.textInput::placeholder {
+  color: var(--text-subtle);
+}
+
+.passwordInput {
+  min-height: 44px !important;
+  height: 48px !important;
+  padding: 0 14px !important;
+  border-radius: 8px !important;
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  font-size: 0.94rem !important;
+  box-sizing: border-box !important;
+}
+
+.passwordInput:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12) !important;
+}
+
+.passwordHelper {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.forgotPasswordRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.forgotPasswordLink {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.forgotPasswordLink:hover {
+  color: #dc2626;
+  text-decoration: underline;
+}
+
+.submitBtn {
+  min-height: 44px;
+  height: 48px;
+  width: 100%;
+  border-radius: 8px;
+  background-color: #dc2626;
+  color: #ffffff;
+  border: none;
+  font-size: 0.94rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  margin-top: 4px;
+  box-sizing: border-box;
+}
+
+.submitBtn:hover {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.submitBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.dividerRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 6px 0;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background-color: var(--border-color);
+}
+
+.dividerText {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-subtle);
+}
+
+.switchText {
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 6px 0 0;
+}
+
+.switchLink {
+  color: #dc2626;
+  font-weight: 700;
+  text-decoration: underline;
+  margin-left: 4px;
+}
+
+.switchLink:hover {
+  color: #b91c1c;
+}
+
+/* Error message banner */
+.errorMessage {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #dc2626;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.fieldError {
+  color: #dc2626;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* Responsive Breakdown */
+
+/* Tablet: 768px - 1023px (left 35%, right 65%) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .leftPanel {
+    width: 35%;
+    padding: 36px 28px;
+  }
+  .rightPanel {
+    width: 65%;
+    flex: none;
+    padding: 32px 32px;
+  }
+  .leftTitle {
+    font-size: 2.7rem;
+  }
+  .leftSubtitle {
+    font-size: 0.88rem;
+  }
+  .barChartGrid {
+    gap: 6px;
+    height: 72px;
+  }
+}
+
+/* Mobile: <768px (hide left panel completely, full width form) */
+@media (max-width: 767px) {
+  .leftPanel {
+    display: none !important;
+  }
+  .rightPanel {
+    width: 100%;
+    padding: 20px 20px 36px;
+    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .mobileBrandBlock {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 900;
+    font-size: 1.15rem;
+    color: var(--text-main);
+    text-decoration: none;
+  }
+  .mobileBrandSlashes {
+    color: #dc2626;
+    font-weight: 900;
+  }
+  .formWrapper {
+    max-width: 100%;
+    padding: 8px 0 20px;
+  }
+  .formTitle {
+    font-size: 1.8rem;
+  }
+}
+

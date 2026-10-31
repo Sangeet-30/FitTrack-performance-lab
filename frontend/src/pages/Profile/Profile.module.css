@@ -1,0 +1,255 @@
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-intro {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #ef4444, #7f1d1d);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.6rem;
+  box-shadow: 0 4px 16px var(--accent-red-glow);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Incomplete Profile Alert Card */
+.incomplete-banner {
+  background: rgba(220, 38, 38, 0.05);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  border-radius: 14px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+:global(html.dark) .incomplete-banner {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.45);
+}
+
+.incomplete-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.incomplete-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.incomplete-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.incomplete-badge {
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.incomplete-headline {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.incomplete-desc {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  max-width: 620px;
+  line-height: 1.45;
+}
+
+.incomplete-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.incomplete-bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--border-color);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.incomplete-bar-fill {
+  height: 100%;
+  background: #dc2626;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.incomplete-percent {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #dc2626;
+  min-width: 40px;
+}
+
+.missing-chips-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.missing-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.missing-chip {
+  background: var(--bg-card);
+  border: 1px dashed rgba(220, 38, 38, 0.4);
+  color: #dc2626;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 6px;
+}
+
+.incomplete-btn {
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  font-size: 0.84rem;
+  padding: 9px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.incomplete-btn:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.profile-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.profile-detail-list div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+}
+
+.profile-detail-list span,
+.preference-list span {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.profile-detail-list strong,
+.preference-list strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.preference-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.preference-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+}
+
+.profile-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.profile-edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .incomplete-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .incomplete-btn {
+    width: 100%;
+    text-align: center;
+  }
+}

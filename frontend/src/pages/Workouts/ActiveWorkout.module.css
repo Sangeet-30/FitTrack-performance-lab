@@ -1,0 +1,122 @@
+.active-workout-grid {
+  display: grid;
+  grid-template-columns: 1fr 0.8fr;
+  gap: 20px;
+}
+
+.timer-panel,
+.progress-panel,
+.workout-checklist {
+  padding: 24px;
+}
+
+.timer-ring {
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(#ef4444 0deg, #ef4444 280deg, var(--border-color) 280deg 360deg);
+  box-shadow: 0 0 24px var(--accent-red-glow);
+}
+
+.timer-content {
+  width: 170px;
+  height: 170px;
+  background: var(--bg-card);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
+
+.timer-content span {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.timer-content strong {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-top: 6px;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+}
+
+.timer-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.rest-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.progress-panel p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.exercise-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 14px 18px;
+  font: inherit;
+  color: var(--text-main);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.check-item:hover {
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.check-item.done {
+  background: var(--accent-red-subtle);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.check-item strong {
+  color: var(--accent-red);
+}
+
+@media (max-width: 900px) {
+  .active-workout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .timer-ring {
+    width: 180px;
+    height: 180px;
+  }
+
+  .timer-content {
+    width: 140px;
+    height: 140px;
+  }
+}

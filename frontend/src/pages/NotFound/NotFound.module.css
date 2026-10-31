@@ -1,0 +1,23 @@
+.not-found-page {
+  color: #0f172a;
+}
+
+.not-found-card h1 {
+  margin: 0 0 12px;
+  color: #0f172a;
+}
+
+.not-found-card > p:not(.eyebrow) {
+  color: #475569;
+}
+
+.not-found-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.not-found-actions a {
+  text-decoration: none;
+}
