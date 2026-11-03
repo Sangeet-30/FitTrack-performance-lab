@@ -28,3 +28,9 @@ export function cx(styleMaps, className = "") {
     .map((name) => styles[name] || name)
     .join(" ");
 }
+
+if (typeof window !== "undefined") {
+  window.cx = cx;
+}
+
+export default cx;

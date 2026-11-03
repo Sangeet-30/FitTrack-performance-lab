@@ -5,8 +5,13 @@ import { BrowserRouter } from 'react-router-dom';
 import { store } from './store/store.js';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary.jsx';
 import { applyTheme, getInitialTheme } from './utils/theme.js';
+import { cx } from './utils/classNames.js';
 import './index.css';
 import App from './App.jsx';
+
+if (typeof window !== 'undefined') {
+  window.cx = cx;
+}
 
 try {
   applyTheme(getInitialTheme());
