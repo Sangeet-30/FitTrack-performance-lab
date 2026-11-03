@@ -12,6 +12,7 @@ import Workouts from "./pages/Workouts/Workouts.jsx";
 const WorkoutDetail = lazy(() => import("./pages/Workouts/WorkoutDetail.jsx"));
 const ActiveWorkout = lazy(() => import("./pages/Workouts/ActiveWorkout.jsx"));
 const Exercises = lazy(() => import("./pages/Exercises/Exercises.jsx"));
+const Logs = lazy(() => import("./pages/Logs/Logs.jsx"));
 const Progress = lazy(() => import("./pages/Progress/Progress.jsx"));
 const Nutrition = lazy(() => import("./pages/Nutrition/Nutrition.jsx"));
 const Goals = lazy(() => import("./pages/Goals/Goals.jsx"));
@@ -54,6 +55,7 @@ function App() {
           }
         >
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/logs" element={<Logs />} />
           <Route path="/workouts" element={<Workouts />} />
           <Route path="/workouts/:workoutId" element={<WorkoutDetail />} />
           <Route

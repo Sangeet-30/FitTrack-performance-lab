@@ -542,7 +542,7 @@ function Dashboard() {
         <section className={styles["card"]}>
           <div className={styles["card-header"]}>
             <span className={styles["card-tag"]}>RECENT ACTIVITY</span>
-            <Link to="/workouts" className={styles["card-link"]}>
+            <Link to="/logs" className={styles["card-link"]}>
               View All &rarr;
             </Link>
           </div>
@@ -563,7 +563,12 @@ function Dashboard() {
                 </thead>
                 <tbody>
                   {activityList.map((row) => (
-                    <tr key={row.id}>
+                    <tr
+                      key={row.id}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => navigate("/logs")}
+                      title="View in Workout Logs"
+                    >
                       <td className={styles["date-cell"]}>{row.date}</td>
                       <td className={styles["session-cell"]}>
                         <span

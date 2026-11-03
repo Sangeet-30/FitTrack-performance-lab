@@ -205,6 +205,7 @@ describe('Frontend Protected Route Redirection Rules', () => {
     }
     const protectedPaths = [
       '/dashboard',
+      '/logs',
       '/workouts',
       '/workouts/w1',
       '/exercises',
@@ -222,6 +223,7 @@ describe('Frontend Protected Route Redirection Rules', () => {
 
   it('redirects unauthenticated users from protected routes to /login', () => {
     expect(evaluateRouteGuard({ targetPath: '/dashboard', isAuthenticated: false })).toBe('/login');
+    expect(evaluateRouteGuard({ targetPath: '/logs', isAuthenticated: false })).toBe('/login');
     expect(evaluateRouteGuard({ targetPath: '/workouts', isAuthenticated: false })).toBe('/login');
     expect(evaluateRouteGuard({ targetPath: '/profile', isAuthenticated: false })).toBe('/login');
     expect(evaluateRouteGuard({ targetPath: '/settings', isAuthenticated: false })).toBe('/login');
@@ -230,6 +232,7 @@ describe('Frontend Protected Route Redirection Rules', () => {
 
   it('allows authenticated users to access protected routes', () => {
     expect(evaluateRouteGuard({ targetPath: '/dashboard', isAuthenticated: true })).toBe('/dashboard');
+    expect(evaluateRouteGuard({ targetPath: '/logs', isAuthenticated: true })).toBe('/logs');
     expect(evaluateRouteGuard({ targetPath: '/workouts', isAuthenticated: true })).toBe('/workouts');
     expect(evaluateRouteGuard({ targetPath: '/profile', isAuthenticated: true })).toBe('/profile');
     expect(evaluateRouteGuard({ targetPath: '/settings', isAuthenticated: true })).toBe('/settings');

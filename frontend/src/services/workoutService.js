@@ -51,3 +51,10 @@ export const deleteWorkout = async (id) => {
     method: 'DELETE',
   });
 };
+
+export const updateWorkout = async (id, workoutData) => {
+  return await apiRequest(`/workouts/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(workoutData),
+  });
+};
