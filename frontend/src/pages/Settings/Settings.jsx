@@ -2,9 +2,8 @@ import styles from "./Settings.module.css";
 import sharedStyles from "../../Shared.module.css";
 import { cx } from "../../utils/classNames.js";
 import { useDispatch, useSelector } from "react-redux";
-import { updatePreferences } from "../../features/user/userSlice.js";
+import { updatePreferences, setProfile } from "../../features/user/userSlice.js";
 import { apiRequest } from "../../services/api.js";
-import { setProfile } from "../../features/user/userSlice.js";
 
 function Settings() {
   const dispatch = useDispatch();

@@ -84,7 +84,13 @@ function Dashboard() {
         }
       }
     } catch (err) {
-      if (err?.status === 503 || err?.message?.toLowerCase().includes("database")) {
+      if (
+        err?.status === 503 ||
+        err?.status === 500 ||
+        err?.message?.toLowerCase().includes("database") ||
+        err?.message?.toLowerCase().includes("failed to fetch") ||
+        err?.message?.toLowerCase().includes("network")
+      ) {
         setDbOffline(true);
       }
     } finally {
