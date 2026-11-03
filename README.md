@@ -19,7 +19,7 @@ flowchart TD
     subgraph Security ["Security & Transport Boundary"]
         CORS["Strict CORS Whitelist (CLIENT_URL)"]
         Helmet["Helmet HTTP Security Headers"]
-        RateLimit["Express Rate Limiting (150 req/15 min)"]
+        RateLimit["Express Rate Limiting (20 req/15 min)"]
         Cookies["httpOnly SameSite Cookies (No localStorage JWT)"]
     end
 
@@ -216,6 +216,7 @@ FitTrack Pro includes comprehensive automated test suites powered by **Vitest** 
 | Test Suite | Coverage |
 |---|---|
 | `auth-and-routes.test.js` | Redux auth state transitions (login, logout, demo toggle), API error status parsing (HTTP 503 database-offline, 401 unauthorized, 400 validation), protected route redirection guards |
+| `universal-nav-modals.test.js` | Universal search filtering across pages, workouts, exercises, search clearing, and modal workout logging events |
 
 ### Run Tests
 ```bash

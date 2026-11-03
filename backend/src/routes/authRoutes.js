@@ -52,11 +52,10 @@ const registerHandler = asyncHandler(async (req, res) => {
     units: units || 'kg',
   });
 
-  const token = issueToken(user, res);
+  issueToken(user, res);
   res.status(201).json({
     message: 'Account created successfully.',
     user: user.toSafeJSON(),
-    token,
   });
 });
 
@@ -79,11 +78,10 @@ router.post(
       return res.status(403).json({ message: 'This account has been deactivated.' });
     }
 
-    const token = issueToken(user, res);
+    issueToken(user, res);
     res.json({
       message: 'Signed in successfully.',
       user: user.toSafeJSON(),
-      token,
     });
   })
 );
@@ -153,7 +151,7 @@ router.post(
       };
     }
 
-    const token = issueToken(user, res);
+    issueToken(user, res);
     const safeUser = typeof user.toSafeJSON === 'function' ? user.toSafeJSON() : user;
     safeUser.isDemo = true;
     safeUser.demoMode = true;
@@ -162,7 +160,6 @@ router.post(
     res.json({
       message: 'Demo overview session started.',
       user: safeUser,
-      token,
     });
   })
 );

@@ -47,6 +47,7 @@ describe('Authentication and Protected Routes', () => {
 
       expect(res.status).toBe(201);
       expect(res.body.user.email).toBe('jordan@example.com');
+      expect(res.body.token).toBeUndefined();
       expect(res.headers['set-cookie']).toBeDefined();
       expect(res.headers['set-cookie'].some((c) => c.includes('fittrack_token'))).toBe(true);
       expect(res.headers['set-cookie'].some((c) => c.includes('HttpOnly'))).toBe(true);
@@ -96,6 +97,7 @@ describe('Authentication and Protected Routes', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.message).toMatch(/Signed in successfully/i);
+      expect(res.body.token).toBeUndefined();
       expect(res.headers['set-cookie']).toBeDefined();
     });
 

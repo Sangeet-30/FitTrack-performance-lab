@@ -1,4 +1,4 @@
-import { apiRequest, setAuthToken } from './api.js';
+import { apiRequest } from './api.js';
 
 export const demoAuthUser = {
   id: 'demo-user',
@@ -19,9 +19,6 @@ export const startDemoOverviewSession = async () => {
       method: 'POST',
       body: JSON.stringify({ guestName: 'Demo User' }),
     });
-    if (data?.token) {
-      setAuthToken(data.token);
-    }
     return {
       ...data?.user,
       name: 'Demo User',
@@ -29,7 +26,6 @@ export const startDemoOverviewSession = async () => {
       isReadOnly: true,
     };
   } catch {
-    setAuthToken('demo-token');
     return demoAuthUser;
   }
 };
@@ -41,9 +37,6 @@ export const loginUser = async ({ email, password }) => {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
-  if (data?.token) {
-    setAuthToken(data.token);
-  }
   return { ...data.user };
 };
 
@@ -52,18 +45,14 @@ export const signupUser = async ({ name, email, password, fitnessGoal, fitnessLe
     method: 'POST',
     body: JSON.stringify({ name, email, password, fitnessGoal, fitnessLevel, units }),
   });
-  if (data?.token) {
-    setAuthToken(data.token);
-  }
   return { ...data.user };
 };
 
 export const logoutUser = async () => {
-  try {
-    await apiRequest('/auth/logout', { method: 'POST', body: JSON.stringify({}) });
-  } finally {
-    setAuthToken(null);
-  }
+  return await apiRequest('/auth/logout', {
+    method: 'POST',
+    body: JSON.stringify({}),
+  });
 };
 
 export const getCurrentUser = async () => {

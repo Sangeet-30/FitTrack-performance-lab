@@ -4,7 +4,7 @@ import authReducer, {
   logout,
   setDemoMode,
 } from '../src/features/auth/authSlice.js';
-import { apiRequest, setAuthToken, getAuthToken } from '../src/services/api.js';
+import { apiRequest } from '../src/services/api.js';
 import { loginUser, signupUser, logoutUser } from '../src/services/authService.js';
 
 // Polyfill localStorage in test environment if needed
@@ -29,7 +29,6 @@ describe('Frontend Auth State & Reducers', () => {
       isReadOnly: false,
       rememberMe: true,
     };
-    setAuthToken(null);
     vi.restoreAllMocks();
   });
 
@@ -65,8 +64,8 @@ describe('Frontend Auth State & Reducers', () => {
 
 describe('Frontend API Error Handling & Status Codes', () => {
   beforeEach(() => {
-    setAuthToken(null);
     vi.restoreAllMocks();
+    localStorage.clear();
   });
 
   it('parses HTTP 503 database-offline errors accurately', async () => {
@@ -88,9 +87,8 @@ describe('Frontend API Error Handling & Status Codes', () => {
     }
   });
 
-  it('handles HTTP 401 unauthorized and clears session token', async () => {
-    setAuthToken('expired-jwt');
-    expect(getAuthToken()).toBe('expired-jwt');
+  it('handles HTTP 401 unauthorized and clears stored auth state', async () => {
+    localStorage.setItem('fittrack-auth-state', JSON.stringify({ isAuthenticated: true }));
 
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
@@ -99,7 +97,7 @@ describe('Frontend API Error Handling & Status Codes', () => {
     });
 
     await expect(apiRequest('/workouts')).rejects.toThrow('Session expired or invalid.');
-    expect(getAuthToken()).toBeNull();
+    expect(localStorage.getItem('fittrack-auth-state')).toBeNull();
   });
 
   it('parses HTTP 400 validation error responses', async () => {
@@ -121,20 +119,17 @@ describe('Frontend API Error Handling & Status Codes', () => {
     }
   });
 
-  it('keeps tokens in memory and never exposes them to localStorage', () => {
-    setAuthToken('fresh-test-token');
-    expect(getAuthToken()).toBe('fresh-test-token');
+  it('ensures browser authentication uses httpOnly cookies without storing tokens in localStorage', () => {
     expect(localStorage.getItem('fittrack_token')).toBeNull();
   });
 });
 
 describe('Frontend Auth Service: Login, Signup, & Logout', () => {
   beforeEach(() => {
-    setAuthToken(null);
     vi.restoreAllMocks();
   });
 
-  it('loginUser sends credentials with credentials include and sets in-memory token', async () => {
+  it('loginUser sends credentials with credentials include and receives user object', async () => {
     const mockUser = { id: 'u1', name: 'Athlete Sangeet', email: 'sangeet@gmail.com' };
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -142,13 +137,11 @@ describe('Frontend Auth Service: Login, Signup, & Logout', () => {
       json: async () => ({
         message: 'Signed in successfully.',
         user: mockUser,
-        token: 'in-memory-secret-token',
       }),
     });
 
     const user = await loginUser({ email: 'sangeet@gmail.com', password: 'password123' });
     expect(user).toEqual(mockUser);
-    expect(getAuthToken()).toBe('in-memory-secret-token');
     expect(fetch).toHaveBeenCalledWith(
       expect.stringContaining('/auth/login'),
       expect.objectContaining({
@@ -158,7 +151,7 @@ describe('Frontend Auth Service: Login, Signup, & Logout', () => {
     );
   });
 
-  it('signupUser dispatches signup payload and returns user data', async () => {
+  it('signupUser dispatches signup payload and returns user data without raw tokens', async () => {
     const newUser = { id: 'u2', name: 'New Athlete', email: 'new@fittrack.com' };
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -166,7 +159,6 @@ describe('Frontend Auth Service: Login, Signup, & Logout', () => {
       json: async () => ({
         message: 'Account created successfully.',
         user: newUser,
-        token: 'registered-jwt-token',
       }),
     });
 
@@ -179,11 +171,16 @@ describe('Frontend Auth Service: Login, Signup, & Logout', () => {
     });
 
     expect(user).toEqual(newUser);
-    expect(getAuthToken()).toBe('registered-jwt-token');
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/auth/register'),
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'include',
+      })
+    );
   });
 
-  it('logoutUser calls /auth/logout and clears in-memory credentials', async () => {
-    setAuthToken('some-token');
+  it('logoutUser calls /auth/logout with credentials include', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -191,7 +188,13 @@ describe('Frontend Auth Service: Login, Signup, & Logout', () => {
     });
 
     await logoutUser();
-    expect(getAuthToken()).toBeNull();
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/auth/logout'),
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'include',
+      })
+    );
   });
 });
 
