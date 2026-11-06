@@ -1,139 +1,431 @@
-
-
-.nutrition-page {
+.nutritionPage {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
-.nutrition-summary {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+/* Header */
+.headerBlock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px 28px;
 }
 
-.nutrition-card {
-  padding: 18px;
+.headerText h2 {
+  margin: 6px 0 4px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
 }
 
-.nutrition-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 20px;
-}
-
-.meal-list {
-  list-style: none;
-  padding: 0;
+.headerText p {
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
 }
 
-.meal-item {
+/* Date Navigator Bar */
+.dateNavigator {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-}
-
-.meal-item strong {
-  color: #0f172a;
-}
-
-.meal-item small {
-  display: block;
-  margin-top: 4px;
-  color: #475569;
-}
-
-.meal-item span {
-  font-weight: 700;
-  color: #334155;
-}
-
-.macro-list-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.macro-row {
-  display: flex;
-  flex-direction: column;
   gap: 8px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 6px 10px;
 }
 
-.macro-row-top {
+.navArrowBtn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.navArrowBtn:hover {
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+.dateInput {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.todayBtn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.todayBtn:hover {
+  background: var(--accent-red-subtle);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: var(--accent-red);
+}
+
+/* Status message */
+.statusAlert {
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--accent-red);
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+
+/* 4 KPI Macro Cards */
+.macroGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.macroCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.macroCard:hover {
+  border-color: rgba(239, 68, 68, 0.4);
+  transform: translateY(-2px);
+}
+
+.macroCardHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  color: #334155;
 }
 
-.macro-bar {
-  height: 10px;
+.macroLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.macroTargetBadge {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-card-subtle);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.macroValue {
+  margin: 0;
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.progressBarTrack {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
   border-radius: 999px;
-  background: #e2e8f0;
   overflow: hidden;
 }
 
-.macro-bar span {
-  display: block;
+.progressBarFill {
   height: 100%;
-  border-radius: inherit;
+  border-radius: 999px;
+  transition: width 0.3s ease;
 }
 
-.water-panel {
+.fillCalories {
+  background: linear-gradient(90deg, #ef4444, #b91c1c);
+}
+
+.fillProtein {
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+}
+
+.waterControls {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.waterBtn {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.waterBtn:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #3b82f6;
+}
+
+/* Targets Bar */
+.targetsPanel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.targetsForm {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.targetField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.targetField label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.targetInput {
+  width: 130px;
+  padding: 8px 12px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: var(--text-main);
+}
+
+.targetInput:focus {
+  outline: none;
+  border-color: var(--accent-red);
+}
+
+/* Log Meal Form Panel */
+.formPanel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.panelHeader h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.mealFormGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldGroup label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.formInput,
+.formSelect {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 0.92rem;
+  color: var(--text-main);
+  transition: border-color 0.18s ease;
+}
+
+.formInput:focus,
+.formSelect:focus {
+  outline: none;
+  border-color: var(--accent-red);
+}
+
+/* Meals Timeline Panel */
+.mealsPanel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.water-level {
+.mealCountBadge {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-card-subtle);
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+}
+
+.mealList {
   display: flex;
-  gap: 10px;
-  align-items: end;
-  min-height: 120px;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.water-glass {
-  flex: 1;
-  background: linear-gradient(180deg, #dbeafe, #bfdbfe);
-  border-radius: 12px 12px 18px 18px;
-  border: 1px solid #93c5fd;
-  position: relative;
-  overflow: hidden;
-}
-
-.water-glass::before {
-  content: "";
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 70%;
-  background: linear-gradient(180deg, rgba(14, 165, 233, 0.8), rgba(59, 130, 246, 0.7));
-}
-
-.water-glass:nth-child(1)::before { height: 55%; }
-.water-glass:nth-child(2)::before { height: 70%; }
-.water-glass:nth-child(3)::before { height: 80%; }
-.water-glass:nth-child(4)::before { height: 90%; }
-.water-glass:nth-child(5)::before { height: 100%; }
-.water-glass:nth-child(6)::before { height: 72%; }
-.water-glass:nth-child(7)::before { height: 85%; }
-
-.water-glass[data-filled="false"]::before { height: 0; }
-
-.water-meta {
+.mealItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #334155;
+  flex-wrap: wrap;
+  gap: 14px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px 20px;
+  transition: border-color 0.18s ease;
+}
+
+.mealItem:hover {
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.mealInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mealHeaderRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mealTypeTag {
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--accent-red-subtle);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: var(--accent-red);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.mealName {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.mealMacrosRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+.macroChip {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 2px 8px;
+  border-radius: 6px;
   font-weight: 600;
+}
+
+.deleteBtn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.deleteBtn:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: var(--accent-red);
+}
+
+.emptyState {
+  padding: 36px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.95rem;
 }

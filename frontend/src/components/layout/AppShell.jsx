@@ -1,15 +1,16 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, lazy, Suspense } from "react";
 import { NavLink, Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../features/auth/authSlice.js";
 import { clearProfile } from "../../features/user/userSlice.js";
 import { logoutUser } from "../../services/authService.js";
 import ThemeToggle from "../ThemeToggle/ThemeToggle.jsx";
-import QuickLogModal from "../QuickLogModal/QuickLogModal.jsx";
-import UniversalSearchModal from "../UniversalSearchModal/UniversalSearchModal.jsx";
 import styles from "./AppShell.module.css";
 import sharedStyles from "../../Shared.module.css";
 import { cx } from "../../utils/classNames.js";
+
+const QuickLogModal = lazy(() => import("../QuickLogModal/QuickLogModal.jsx"));
+const UniversalSearchModal = lazy(() => import("../UniversalSearchModal/UniversalSearchModal.jsx"));
 
 const navItems = [
   {
@@ -36,7 +37,7 @@ const navItems = [
   },
   {
     to: "/workouts",
-    label: "Training",
+    label: "Workouts",
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="m6.5 6.5 11 11" />
@@ -199,7 +200,73 @@ function AppShell() {
     setIsLogModalOpen(true);
   };
 
-  const isDashboard = location.pathname === "/dashboard" || location.pathname === "/";
+  const pageMeta = useMemo(() => {
+    const path = location.pathname;
+    if (path === "/dashboard" || path === "/") {
+      return {
+        title: `${greeting}, ${firstName}.`,
+        subtitle: "Show up today. Progress compounds.",
+      };
+    }
+    if (path.startsWith("/workouts/") && path !== "/workouts") {
+      return {
+        title: "Workout Routine",
+        subtitle: "Review structure, target muscles, and coaching protocol.",
+      };
+    }
+    if (path === "/workouts" || path === "/workout") {
+      return {
+        title: "Workouts",
+        subtitle: "Structured muscle-group routines and training programs.",
+      };
+    }
+    if (path === "/exercises") {
+      return {
+        title: "Movement Library",
+        subtitle: "Exercise catalog, biomechanics, and form guides.",
+      };
+    }
+    if (path === "/logs") {
+      return {
+        title: "Training Logs",
+        subtitle: "Session history, volume tracking, and workout records.",
+      };
+    }
+    if (path === "/progress") {
+      return {
+        title: "Progress & Biometrics",
+        subtitle: "Body composition checkpoints and weight tracking.",
+      };
+    }
+    if (path === "/nutrition") {
+      return {
+        title: "Nutrition & Fuel",
+        subtitle: "Daily caloric targets, macros, and hydration tracking.",
+      };
+    }
+    if (path === "/goals") {
+      return {
+        title: "Milestones & Goals",
+        subtitle: "Performance benchmarks and target roadmaps.",
+      };
+    }
+    if (path === "/profile") {
+      return {
+        title: "Athlete Profile",
+        subtitle: "Personal biometrics, split setup, and training cadence.",
+      };
+    }
+    if (path === "/settings") {
+      return {
+        title: "Settings & Preferences",
+        subtitle: "System preferences, units of measure, and account controls.",
+      };
+    }
+    return {
+      title: path.replace("/", "").charAt(0).toUpperCase() + path.replace("/", "").slice(1),
+      subtitle: "FitTrack Performance Lab.",
+    };
+  }, [location.pathname, greeting, firstName]);
 
   return (
     <div
@@ -336,7 +403,7 @@ function AppShell() {
                 <div className={styles["profile-details"]}>
                   <span className={styles["profile-name"]}>{displayName}</span>
                   <span className={styles["profile-plan"]}>
-                    {demoMode ? "Demo Guest" : "Free Plan"}
+                    {demoMode ? "Demo Guest" : (user?.fitnessLevel || authUser?.fitnessLevel || "Athlete")}
                   </span>
                 </div>
                 <span className={styles["profile-chevron"]}>›</span>
@@ -376,17 +443,10 @@ function AppShell() {
           <div className={styles["topbar-left"]}>
             <span className={styles["topbar-date"]}>{formattedDate}</span>
             <h1 className={styles["topbar-heading"]}>
-              {isDashboard ? (
-                <>
-                  {greeting}, {firstName}.
-                </>
-              ) : (
-                location.pathname.replace("/", "").charAt(0).toUpperCase() +
-                location.pathname.replace("/", "").slice(1)
-              )}
+              {pageMeta.title}
             </h1>
             <p className={styles["topbar-subtitle"]}>
-              Show up today. Progress compounds.
+              {pageMeta.subtitle}
             </p>
           </div>
 
@@ -459,18 +519,30 @@ function AppShell() {
         <div className={cx([styles, sharedStyles], "page-shell")}>
           <Outlet />
         </div>
+
+        <footer className={styles["dashboard-footer"]}>
+          <p>© 2026 FitTrack Pro Performance Lab. High-Performance Athletic Training.</p>
+        </footer>
       </main>
 
-      {/* Universal Modals across all authenticated views */}
-      <QuickLogModal
-        isOpen={isLogModalOpen}
-        onClose={() => setIsLogModalOpen(false)}
-      />
+      {/* Universal Modals across all authenticated views (loaded on-demand) */}
+      {isLogModalOpen && (
+        <Suspense fallback={null}>
+          <QuickLogModal
+            isOpen={isLogModalOpen}
+            onClose={() => setIsLogModalOpen(false)}
+          />
+        </Suspense>
+      )}
 
-      <UniversalSearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-      />
+      {isSearchOpen && (
+        <Suspense fallback={null}>
+          <UniversalSearchModal
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

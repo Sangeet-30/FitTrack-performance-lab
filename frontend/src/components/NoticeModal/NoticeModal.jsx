@@ -18,8 +18,13 @@ function NoticeModal({
   type,
 }) {
   const navigate = useNavigate();
-  const demoMode = useSelector((state) => state?.auth?.demoMode);
-  const isDemoEffective = isDemo !== undefined ? Boolean(isDemo) : Boolean(demoMode);
+  const auth = useSelector((state) => state?.auth);
+  const isAuthenticated = Boolean(auth?.isAuthenticated);
+  const isDemoAccount = auth?.user?.email === "demo@fittrack.app" || auth?.user?.id === "demo-user";
+  const isRealUser = isAuthenticated && !isDemoAccount;
+  const demoMode = Boolean(auth?.demoMode) && (!isAuthenticated || isDemoAccount);
+  const isDemoEffective = isRealUser ? false : (isDemo !== undefined ? Boolean(isDemo) : demoMode);
+  const titleLower = (title || "").toLowerCase();
 
   // Close on Escape key
   useEffect(() => {
@@ -42,7 +47,6 @@ function NoticeModal({
     }
   };
 
-  const titleLower = (title || "").toLowerCase();
   const isSuccess =
     type === "success" ||
     titleLower.includes("logged") ||

@@ -1,11 +1,40 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { apiRequest } from "../../services/api.js";
 import sharedStyles from "../../Shared.module.css";
+import styles from "./Progress.module.css";
 import { cx } from "../../utils/classNames.js";
 
-const initialForm = { weightKg: "", bodyFatPercent: "", waist: "", chest: "", leftArm: "", notes: "" };
+const initialForm = {
+  weightKg: "",
+  bodyFatPercent: "",
+  waist: "",
+  chest: "",
+  leftArm: "",
+  notes: "",
+};
+
+function CustomChartTooltip({ active, payload, label }) {
+  if (active && payload && payload.length) {
+    return (
+      <div className={styles.chartTooltip}>
+        <div className={styles.tooltipDate}>{label}</div>
+        <div className={styles.tooltipWeight}>{payload[0].value} kg</div>
+      </div>
+    );
+  }
+  return null;
+}
+
 function Progress() {
   const demoMode = useSelector((state) => state.auth.demoMode);
   const [entries, setEntries] = useState([]);
@@ -13,49 +42,419 @@ function Progress() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
-  const loadEntries = async () => { try { const data = await apiRequest("/progress"); setEntries(data.items || []); } catch (error) { setMessage(`${error.message} Check that the API is running and sign in again if needed.`); } finally { setLoading(false); } };
-  useEffect(() => { loadEntries(); }, []);
-  const chartData = useMemo(() => [...entries].filter((item) => item.weightKg != null && Number.isFinite(Number(item.weightKg))).reverse().map((item) => ({ date: new Date(item.recordedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }), weight: Number(item.weightKg) })), [entries]);
+
+  const loadEntries = useCallback(async () => {
+    try {
+      const data = await apiRequest("/progress");
+      setEntries(data.items || []);
+    } catch (error) {
+      setMessage(
+        `${error.message} Check that the API is running and sign in again if needed.`
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadEntries();
+  }, [loadEntries]);
+
+  const chartData = useMemo(() => {
+    return [...entries]
+      .filter((item) => item.weightKg != null && Number.isFinite(Number(item.weightKg)))
+      .reverse()
+      .map((item) => ({
+        date: new Date(item.recordedAt).toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+        }),
+        weight: Number(item.weightKg),
+      }));
+  }, [entries]);
+
   const submitEntry = async (event) => {
     event.preventDefault();
     if (demoMode) {
-      setMessage("Demo Overview Mode: Saving progress entries is disabled in preview mode. Create a free account to track your progress!");
+      setMessage(
+        "Demo Overview Mode: Saving progress entries is disabled in preview mode."
+      );
       return;
     }
-    if (form.weightKg === "" && form.bodyFatPercent === "" && !form.waist && !form.chest && !form.leftArm) { setMessage("Add at least one measurement."); return; }
-    setSaving(true); setMessage("");
-    const measurements = Object.fromEntries([["waist", form.waist], ["chest", form.chest], ["leftArm", form.leftArm]].filter(([, value]) => value !== "").map(([key, value]) => [key, Number(value)]));
-    try { const data = await apiRequest("/progress", { method: "POST", body: JSON.stringify({ weightKg: form.weightKg === "" ? undefined : Number(form.weightKg), bodyFatPercent: form.bodyFatPercent === "" ? undefined : Number(form.bodyFatPercent), measurements: Object.keys(measurements).length ? measurements : undefined, notes: form.notes }) }); setEntries((current) => [data.item, ...current]); setForm(initialForm); setMessage("Progress entry saved."); }
-    catch (error) { setMessage(error.message); }
-    finally { setSaving(false); }
+
+    if (
+      form.weightKg === "" &&
+      form.bodyFatPercent === "" &&
+      !form.waist &&
+      !form.chest &&
+      !form.leftArm
+    ) {
+      setMessage("Please enter at least one measurement (weight, body fat, or circumference).");
+      return;
+    }
+
+    setSaving(true);
+    setMessage("");
+
+    const measurements = Object.fromEntries(
+      [
+        ["waist", form.waist],
+        ["chest", form.chest],
+        ["leftArm", form.leftArm],
+      ]
+        .filter(([, value]) => value !== "")
+        .map(([key, value]) => [key, Number(value)])
+    );
+
+    try {
+      const data = await apiRequest("/progress", {
+        method: "POST",
+        body: JSON.stringify({
+          weightKg: form.weightKg === "" ? undefined : Number(form.weightKg),
+          bodyFatPercent:
+            form.bodyFatPercent === "" ? undefined : Number(form.bodyFatPercent),
+          measurements:
+            Object.keys(measurements).length ? measurements : undefined,
+          notes: form.notes,
+        }),
+      });
+
+      setEntries((current) => [data.item, ...current]);
+      setForm(initialForm);
+      setMessage("Biometrics checkpoint saved successfully.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
+    }
   };
+
   const removeEntry = async (entry) => {
     if (demoMode) {
       setMessage("Demo Overview Mode: Deleting entries is disabled in preview mode.");
       return;
     }
-    try { await apiRequest(`/progress/${entry._id}`, { method: "DELETE" }); setEntries((current) => current.filter((item) => item._id !== entry._id)); } catch (error) { setMessage(error.message); }
+
+    if (!window.confirm("Delete this progress checkpoint entry?")) return;
+
+    try {
+      await apiRequest(`/progress/${entry._id}`, { method: "DELETE" });
+      setEntries((current) => current.filter((item) => item._id !== entry._id));
+      setMessage("Entry removed.");
+    } catch (error) {
+      setMessage(error.message);
+    }
   };
-  const latestWeight = entries.find((item) => Number.isFinite(Number(item.weightKg)) && item.weightKg != null)?.weightKg;
-  return <div className={cx([sharedStyles], "progress-page")}>
-    <section className={cx([sharedStyles], "page-header-block card-panel")}><div><p className={cx([sharedStyles], "eyebrow accent")}>Your data, over time</p><h2>Progress journal</h2><p>Record measurements consistently. Trends are more useful than one-off readings.</p></div></section>
-    {message && <p role="status" className={cx([sharedStyles], "card-panel")}>{message}</p>}
-    <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 14, marginBottom: 18 }}>
-      <article className={cx([sharedStyles], "card-panel")}><p>Latest weight</p><h2>{latestWeight == null ? "—" : `${latestWeight} kg`}</h2><small>Most recent recorded value</small></article>
-      <article className={cx([sharedStyles], "card-panel")}><p>Measurements logged</p><h2>{entries.length}</h2><small>Saved to your account</small></article>
-      <article className={cx([sharedStyles], "card-panel")}><p>Tracking habit</p><h2>{entries.length >= 4 ? "Building" : "Getting started"}</h2><small>Log regularly to reveal trends</small></article>
-    </section>
-    <section className={cx([sharedStyles], "card-panel")}><div className={cx([sharedStyles], "panel-header")}><h3>Weight trend</h3></div>{chartData.length < 2 ? <p>Add at least two weight entries to see your trend chart.</p> : <div style={{ width: "100%", height: 280 }}><ResponsiveContainer><LineChart data={chartData} margin={{ top: 12, right: 12, bottom: 4, left: 0 }}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="date" /><YAxis domain={["dataMin - 1", "dataMax + 1"]} /><Tooltip /><Line type="monotone" dataKey="weight" name="Weight (kg)" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, fill: "#ef4444" }} activeDot={{ r: 6, fill: "#dc2626" }} /></LineChart></ResponsiveContainer></div>}</section>
-    <section className={cx([sharedStyles], "card-panel")} style={{ marginTop: 18 }}><div className={cx([sharedStyles], "panel-header")}><h3>Add measurement</h3></div><form onSubmit={submitEntry} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 12 }}>
-      <label className={cx([sharedStyles], "field-group")}>Weight (kg)<input type="number" min="20" max="500" step="0.1" value={form.weightKg} onChange={(e) => setForm({ ...form, weightKg: e.target.value })} placeholder="e.g. 74.5" /></label>
-      <label className={cx([sharedStyles], "field-group")}>Body fat (%)<input type="number" min="1" max="75" step="0.1" value={form.bodyFatPercent} onChange={(e) => setForm({ ...form, bodyFatPercent: e.target.value })} placeholder="Optional" /></label>
-      <label className={cx([sharedStyles], "field-group")}>Waist (cm)<input type="number" min="1" step="0.1" value={form.waist} onChange={(e) => setForm({ ...form, waist: e.target.value })} /></label>
-      <label className={cx([sharedStyles], "field-group")}>Chest (cm)<input type="number" min="1" step="0.1" value={form.chest} onChange={(e) => setForm({ ...form, chest: e.target.value })} /></label>
-      <label className={cx([sharedStyles], "field-group")}>Left arm (cm)<input type="number" min="1" step="0.1" value={form.leftArm} onChange={(e) => setForm({ ...form, leftArm: e.target.value })} /></label>
-      <label className={cx([sharedStyles], "field-group")}>Notes<input maxLength={1000} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Optional context" /></label>
-      <div style={{ display: "flex", alignItems: "end" }}><button className={cx([sharedStyles], "primary-button")} disabled={saving}>{saving ? "Saving…" : "Save entry"}</button></div>
-    </form></section>
-    <section className={cx([sharedStyles], "card-panel")} style={{ marginTop: 18 }}><div className={cx([sharedStyles], "panel-header")}><h3>History</h3><span>{entries.length} entries</span></div>{loading ? <p>Loading progress…</p> : entries.length === 0 ? <p>Your saved measurements will appear here.</p> : <div style={{ display: "grid", gap: 10 }}>{entries.map((entry) => <article key={entry._id} style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", borderBottom: "1px solid #e2e8f0", padding: "10px 0" }}><div><strong>{new Date(entry.recordedAt).toLocaleDateString()}</strong><p style={{ margin: "4px 0 0" }}>{entry.weightKg != null ? `${entry.weightKg} kg` : "Weight not logged"}{entry.bodyFatPercent != null ? ` · ${entry.bodyFatPercent}% body fat` : ""}{entry.measurements?.waist ? ` · Waist ${entry.measurements.waist} cm` : ""}</p>{entry.notes && <small>{entry.notes}</small>}</div><button type="button" className={cx([sharedStyles], "secondary-button")} onClick={() => removeEntry(entry)}>Delete</button></article>)}</div>}</section>
-  </div>;
+
+  // Metric computations
+  const validWeights = useMemo(() => {
+    return entries
+      .filter((e) => e.weightKg != null && Number.isFinite(Number(e.weightKg)))
+      .map((e) => Number(e.weightKg));
+  }, [entries]);
+
+  const latestWeight = validWeights.length > 0 ? validWeights[0] : null;
+  const oldestWeight = validWeights.length > 1 ? validWeights[validWeights.length - 1] : null;
+  const weightDelta =
+    latestWeight != null && oldestWeight != null
+      ? (latestWeight - oldestWeight).toFixed(1)
+      : null;
+
+  const habitScore =
+    entries.length >= 6
+      ? "Consistent Habit"
+      : entries.length >= 2
+      ? "Building Momentum"
+      : "Getting Started";
+
+  return (
+    <div className={cx([styles, sharedStyles], "progressPage")}>
+      {/* Executive Header */}
+      <section className={styles.headerBlock}>
+        <div className={styles.headerText}>
+          <p className={cx([sharedStyles], "eyebrow accent")}>BIOMETRICS &amp; BODY COMPOSITION</p>
+          <h2>Progress &amp; Measurement Journal</h2>
+          <p>Record weight, body fat %, and tape circumferences. Consistency reveals true physiological trends.</p>
+        </div>
+      </section>
+
+      {message && (
+        <div role="status" className={styles.statusAlert}>
+          {message}
+        </div>
+      )}
+
+      {/* KPI Metrics Strip */}
+      <section className={styles.metricsGrid}>
+        <article className={styles.metricCard}>
+          <span className={styles.metricLabel}>Latest Recorded Weight</span>
+          <div className={styles.metricValueRow}>
+            <h3 className={styles.metricValue}>
+              {latestWeight != null ? `${latestWeight} kg` : "—"}
+            </h3>
+            {weightDelta != null && (
+              <span
+                className={`${styles.metricDelta} ${
+                  Number(weightDelta) <= 0 ? styles.deltaDown : styles.deltaUp
+                }`}
+              >
+                {Number(weightDelta) > 0 ? `+${weightDelta} kg` : `${weightDelta} kg`}
+              </span>
+            )}
+          </div>
+          <p className={styles.metricSubtext}>
+            {entries.length > 0
+              ? `Logged on ${new Date(entries[0].recordedAt).toLocaleDateString()}`
+              : "No weigh-ins recorded yet"}
+          </p>
+        </article>
+
+        <article className={styles.metricCard}>
+          <span className={styles.metricLabel}>Total Checkpoints</span>
+          <div className={styles.metricValueRow}>
+            <h3 className={styles.metricValue}>{entries.length}</h3>
+          </div>
+          <p className={styles.metricSubtext}>Saved to your private training history</p>
+        </article>
+
+        <article className={styles.metricCard}>
+          <span className={styles.metricLabel}>Logging Habit</span>
+          <div className={styles.metricValueRow}>
+            <h3 className={styles.metricValue}>{habitScore}</h3>
+          </div>
+          <p className={styles.metricSubtext}>Log weekly under standard morning conditions</p>
+        </article>
+      </section>
+
+      {/* Weight Trend Chart */}
+      <section className={styles.chartPanel}>
+        <div className={styles.panelHeader}>
+          <h3>Weight Progression Curve</h3>
+          <span className={styles.historyCount}>
+            {chartData.length} Data Points
+          </span>
+        </div>
+
+        {chartData.length < 2 ? (
+          <div className={styles.emptyChartMessage}>
+            Log at least 2 weigh-ins to generate your interactive weight trend line.
+          </div>
+        ) : (
+          <div className={styles.chartContainer}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 16, right: 16, bottom: 8, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" opacity={0.6} />
+                <XAxis
+                  dataKey="date"
+                  stroke="var(--text-muted)"
+                  fontSize={12}
+                  tickLine={false}
+                  dy={6}
+                />
+                <YAxis
+                  domain={["dataMin - 1", "dataMax + 1"]}
+                  stroke="var(--text-muted)"
+                  fontSize={12}
+                  tickLine={false}
+                  dx={-4}
+                />
+                <Tooltip content={<CustomChartTooltip />} />
+                <Line
+                  type="monotone"
+                  dataKey="weight"
+                  stroke="#ef4444"
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: "#ef4444" }}
+                  activeDot={{ r: 6, fill: "#dc2626" }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </section>
+
+      {/* Log Measurement Form */}
+      <section className={styles.formPanel}>
+        <div className={styles.panelHeader}>
+          <h3>Record New Checkpoint</h3>
+        </div>
+
+        <form onSubmit={submitEntry}>
+          <div className={styles.formGrid}>
+            <div className={styles.fieldGroup}>
+              <label htmlFor="weightKg">Weight (kg)</label>
+              <input
+                id="weightKg"
+                className={styles.formInput}
+                type="number"
+                min="20"
+                max="500"
+                step="0.1"
+                value={form.weightKg}
+                onChange={(e) => setForm({ ...form, weightKg: e.target.value })}
+                placeholder="e.g. 75.2"
+              />
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <label htmlFor="bodyFatPercent">Body Fat (%)</label>
+              <input
+                id="bodyFatPercent"
+                className={styles.formInput}
+                type="number"
+                min="1"
+                max="75"
+                step="0.1"
+                value={form.bodyFatPercent}
+                onChange={(e) => setForm({ ...form, bodyFatPercent: e.target.value })}
+                placeholder="Optional"
+              />
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <label htmlFor="waist">Waist (cm)</label>
+              <input
+                id="waist"
+                className={styles.formInput}
+                type="number"
+                min="1"
+                step="0.1"
+                value={form.waist}
+                onChange={(e) => setForm({ ...form, waist: e.target.value })}
+                placeholder="Optional"
+              />
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <label htmlFor="chest">Chest (cm)</label>
+              <input
+                id="chest"
+                className={styles.formInput}
+                type="number"
+                min="1"
+                step="0.1"
+                value={form.chest}
+                onChange={(e) => setForm({ ...form, chest: e.target.value })}
+                placeholder="Optional"
+              />
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <label htmlFor="leftArm">Arm (cm)</label>
+              <input
+                id="leftArm"
+                className={styles.formInput}
+                type="number"
+                min="1"
+                step="0.1"
+                value={form.leftArm}
+                onChange={(e) => setForm({ ...form, leftArm: e.target.value })}
+                placeholder="Optional"
+              />
+            </div>
+
+            <div className={styles.fieldGroup} style={{ gridColumn: "span 2" }}>
+              <label htmlFor="notes">Context &amp; Notes</label>
+              <input
+                id="notes"
+                className={styles.formInput}
+                maxLength={1000}
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                placeholder="e.g. Morning fasted, post-refeed day"
+              />
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                className={cx([sharedStyles], "primary-button")}
+                style={{ width: "100%", height: "42px" }}
+                disabled={saving}
+              >
+                {saving ? "Saving…" : "+ Save Checkpoint"}
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      {/* Checkpoint History Timeline */}
+      <section className={styles.historyPanel}>
+        <div className={styles.panelHeader}>
+          <h3>Measurement History</h3>
+          <span className={styles.historyCount}>{entries.length} Entries Recorded</span>
+        </div>
+
+        {loading ? (
+          <div className={styles.emptyState}>Loading biometrics log…</div>
+        ) : entries.length === 0 ? (
+          <div className={styles.emptyState}>
+            No entries logged yet. Record your initial baseline above.
+          </div>
+        ) : (
+          <div className={styles.historyList}>
+            {entries.map((entry) => (
+              <article key={entry._id} className={styles.historyItem}>
+                <div className={styles.historyMain}>
+                  <div className={styles.historyDateRow}>
+                    <span className={styles.historyDate}>
+                      {new Date(entry.recordedAt).toLocaleDateString(undefined, {
+                        weekday: "short",
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
+                    {entry.weightKg != null && (
+                      <span className={styles.historyWeightChip}>
+                        {entry.weightKg} kg
+                      </span>
+                    )}
+                  </div>
+
+                  <div className={styles.historyMeasurementsRow}>
+                    {entry.bodyFatPercent != null && (
+                      <span className={styles.measurementTag}>
+                        Body Fat: {entry.bodyFatPercent}%
+                      </span>
+                    )}
+                    {entry.measurements?.waist && (
+                      <span className={styles.measurementTag}>
+                        Waist: {entry.measurements.waist} cm
+                      </span>
+                    )}
+                    {entry.measurements?.chest && (
+                      <span className={styles.measurementTag}>
+                        Chest: {entry.measurements.chest} cm
+                      </span>
+                    )}
+                    {entry.measurements?.leftArm && (
+                      <span className={styles.measurementTag}>
+                        Arm: {entry.measurements.leftArm} cm
+                      </span>
+                    )}
+                  </div>
+
+                  {entry.notes && (
+                    <p className={styles.historyNotes}>"{entry.notes}"</p>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  className={styles.deleteBtn}
+                  onClick={() => removeEntry(entry)}
+                >
+                  Delete
+                </button>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
 }
+
 export default Progress;

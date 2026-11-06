@@ -1,46 +1,128 @@
 .profile-page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 28px;
+  width: 100%;
 }
 
-.profile-header {
+/* Executive Athlete Profile Header */
+.profile-header-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 30px 34px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+  transition: border-color 0.2s ease;
 }
 
-.profile-intro {
+.profile-header-card:hover {
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.profile-user-info {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 22px;
+  flex-wrap: wrap;
 }
 
 .profile-avatar {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #ef4444, #7f1d1d);
+  background: linear-gradient(135deg, #ef4444, #991b1b);
   color: #ffffff;
-  font-weight: 800;
-  font-size: 1.6rem;
-  box-shadow: 0 4px 16px var(--accent-red-glow);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 850;
+  font-size: 2rem;
+  box-shadow: 0 6px 20px var(--accent-red-glow);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
+.profile-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-name {
+  margin: 0;
+  font-size: 1.85rem;
+  font-weight: 850;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.profile-subtitle {
+  margin: 0;
+  font-size: 0.94rem;
+  color: var(--text-muted);
+}
+
+.profile-badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.profile-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.profile-badge-accent {
+  background: var(--accent-red-subtle);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: var(--accent-red);
+}
+
+.edit-toggle-btn {
+  background: var(--accent-red);
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.35);
+  transition: all 0.18s ease;
+}
+
+.edit-toggle-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.45);
 }
 
 /* Incomplete Profile Alert Card */
 .incomplete-banner {
   background: rgba(220, 38, 38, 0.05);
   border: 1px solid rgba(220, 38, 38, 0.35);
-  border-radius: 14px;
-  padding: 20px 24px;
+  border-radius: 16px;
+  padding: 22px 26px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  position: relative;
-  overflow: hidden;
+  transition: border-color 0.2s ease;
 }
 
 :global(html.dark) .incomplete-banner {
@@ -88,10 +170,28 @@
 
 .incomplete-desc {
   margin: 0;
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   color: var(--text-muted);
-  max-width: 620px;
-  line-height: 1.45;
+  max-width: 650px;
+  line-height: 1.48;
+}
+
+.incomplete-btn {
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  font-size: 0.84rem;
+  padding: 9px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.incomplete-btn:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
 }
 
 .incomplete-bar-wrap {
@@ -116,10 +216,9 @@
 }
 
 .incomplete-percent {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 800;
-  color: #dc2626;
-  min-width: 40px;
+  color: var(--accent-red);
 }
 
 .missing-chips-row {
@@ -133,123 +232,247 @@
   font-size: 0.78rem;
   font-weight: 700;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .missing-chip {
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
   background: var(--bg-card);
   border: 1px dashed rgba(220, 38, 38, 0.4);
-  color: #dc2626;
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 3px 9px;
-  border-radius: 6px;
+  color: var(--accent-red);
 }
 
-.incomplete-btn {
-  background: #dc2626;
-  color: #ffffff;
-  border: none;
-  font-weight: 700;
-  font-size: 0.84rem;
-  padding: 9px 18px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.1s ease;
-  white-space: nowrap;
-}
-
-.incomplete-btn:hover {
-  background: #b91c1c;
-  transform: translateY(-1px);
-}
-
-.profile-grid {
+/* 4 Biometrics KPI Cards */
+.biometrics-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
 }
 
-.profile-detail-list {
+.biometric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 22px 24px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-.profile-detail-list div {
+.biometric-card:hover {
+  border-color: rgba(239, 68, 68, 0.4);
+  transform: translateY(-2px);
+}
+
+.biometric-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.biometric-val {
+  margin: 0;
+  font-size: 1.85rem;
+  font-weight: 850;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.biometric-sub {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* 2-Column Profile Sections */
+.profile-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+@media (max-width: 992px) {
+  .profile-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 26px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.detail-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: 12px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 14px;
+}
+
+.detail-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
   background: var(--bg-card-subtle);
   border: 1px solid var(--border-color);
 }
 
-.profile-detail-list span,
-.preference-list span {
+.detail-row span {
+  font-size: 0.88rem;
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-weight: 500;
 }
 
-.profile-detail-list strong,
-.preference-list strong {
+.detail-row strong {
+  font-size: 0.92rem;
   color: var(--text-main);
   font-weight: 700;
 }
 
-.preference-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+/* Split Schedule Grid */
+.split-schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-top: 10px;
 }
 
-.preference-list li {
+@media (max-width: 768px) {
+  .split-schedule-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.schedule-day-card {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  gap: 16px;
-  padding: 14px 16px;
-  border-radius: 12px;
+  text-align: center;
+  gap: 4px;
+  padding: 10px 6px;
+  border-radius: 10px;
   background: var(--bg-card-subtle);
   border: 1px solid var(--border-color);
+  transition: all 0.18s ease;
 }
 
-.profile-edit-form {
+.schedule-day-card.training {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: var(--accent-red-subtle);
+}
+
+.schedule-day-card.sunday {
+  border-color: rgba(59, 130, 246, 0.35);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.schedule-day-title {
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.schedule-day-workout {
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+/* Edit Profile Form */
+.profile-edit-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 28px 32px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-group label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 0.92rem;
+  color: var(--text-main);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--accent-red);
+  box-shadow: 0 0 0 3px var(--accent-red-subtle);
 }
 
 .profile-edit-actions {
   display: flex;
-  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 12px;
-}
-
-@media (max-width: 900px) {
-  .profile-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
-  }
-
-  .profile-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .incomplete-top {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .incomplete-btn {
-    width: 100%;
-    text-align: center;
-  }
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
 }

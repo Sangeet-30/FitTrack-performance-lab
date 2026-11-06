@@ -20,122 +20,219 @@ function Workouts() {
 
   return (
     <div className={cx([styles, sharedStyles], "workout-page")}>
-      <section
-        className={cx([styles, sharedStyles], "page-header-block card-panel")}
-      >
-        <div>
-          <p className={cx([styles, sharedStyles], "eyebrow accent")}>
-            Workout library
+      {/* Header Banner */}
+      <section className={styles["workouts-hero"]}>
+        <div className={styles["hero-text"]}>
+          <div className={styles["hero-eyebrow-row"]}>
+            <span className={styles["hero-tag"]}>ATHLETIC PERFORMANCE LAB</span>
+            <span className={styles["hero-count"]}>
+              {filteredWorkouts.length} Curated Programs
+            </span>
+          </div>
+          <h1 className={styles["hero-title"]}>Workouts</h1>
+          <p className={styles["hero-subtitle"]}>
+            Targeted resistance routines engineered for strength, hypertrophy, and progressive overload.
           </p>
-          <h2>Find your next session</h2>
         </div>
-      </section>
 
-      <section
-        className={cx([styles, sharedStyles], "card-panel filter-panel")}
-      >
-        <div className={cx([styles, sharedStyles], "filter-row")}>
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search workouts or muscle groups"
-            aria-label="Search workouts"
-          />
-
-          <select
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-            aria-label="Workout category"
-          >
-            {workoutCategories.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={difficulty}
-            onChange={(event) => setDifficulty(event.target.value)}
-            aria-label="Difficulty filter"
-          >
-            {difficulties.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </div>
-      </section>
-
-      <section className={cx([styles, sharedStyles], "workout-grid")}>
-        {filteredWorkouts.length > 0 ? (
-          filteredWorkouts.map((workout) => (
-            <article
-              key={workout.id}
-              className={cx([styles, sharedStyles], "workout-card card-panel")}
-            >
-              <div
-                className={cx([styles, sharedStyles], "workout-image")}
-                aria-hidden="true"
+        {/* Quick Category Navigation Pills */}
+        <div className={styles["category-pills-scroll"]}>
+          {workoutCategories.map((cat) => {
+            const isActive = category === cat;
+            return (
+              <button
+                key={cat}
+                type="button"
+                className={`${styles["category-pill"]} ${isActive ? styles["active"] : ""}`}
+                onClick={() => setCategory(cat)}
               >
-                {workout.category}
-              </div>
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
-              <div className={cx([styles, sharedStyles], "workout-content")}>
-                <div className={cx([styles, sharedStyles], "workout-topline")}>
-                  <span className={cx([styles, sharedStyles], "badge")}>
-                    {workout.category}
-                  </span>
-                  <span
-                    className={cx([styles, sharedStyles], "difficulty-pill")}
-                  >
+      {/* Filter & Search Bar */}
+      <section className={styles["filter-card"]}>
+        <div className={styles["filter-grid"]}>
+          <div className={styles["search-input-wrap"]}>
+            <svg
+              className={styles["search-icon"]}
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by routine name, muscle group, or equipment..."
+              className={styles["search-field"]}
+              aria-label="Search workouts"
+            />
+            {query && (
+              <button
+                type="button"
+                className={styles["clear-search-btn"]}
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          <div className={styles["select-filters-row"]}>
+            <div className={styles["select-wrap"]}>
+              <label htmlFor="workout-category-select" className={styles["select-label"]}>
+                Category
+              </label>
+              <select
+                id="workout-category-select"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className={styles["select-field"]}
+                aria-label="Workout category"
+              >
+                {workoutCategories.map((option) => (
+                  <option key={option} value={option}>
+                    {option === "All" ? "All Categories" : option}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles["select-wrap"]}>
+              <label htmlFor="workout-difficulty-select" className={styles["select-label"]}>
+                Difficulty
+              </label>
+              <select
+                id="workout-difficulty-select"
+                value={difficulty}
+                onChange={(e) => setDifficulty(e.target.value)}
+                className={styles["select-field"]}
+                aria-label="Difficulty filter"
+              >
+                {difficulties.map((option) => (
+                  <option key={option} value={option}>
+                    {option === "All" ? "All Levels" : option}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Workout Grid */}
+      <section className={styles["workout-grid"]}>
+        {filteredWorkouts.length > 0 ? (
+          filteredWorkouts.map((workout) => {
+            const totalSets = workout.exercisesList?.reduce(
+              (acc, item) => acc + (Number(item.sets) || 0),
+              0,
+            );
+
+            return (
+              <article key={workout.id} className={styles["workout-card"]}>
+                {/* Header Strip */}
+                <div className={styles["card-header-strip"]}>
+                  <div className={styles["category-flag"]}>{workout.category}</div>
+                  <div className={styles["difficulty-tag"]}>
+                    <span
+                      className={`${styles["diff-dot"]} ${
+                        workout.difficulty.toLowerCase() === "beginner"
+                          ? styles["beginner"]
+                          : workout.difficulty.toLowerCase() === "advanced"
+                          ? styles["advanced"]
+                          : styles["intermediate"]
+                      }`}
+                    />
                     {workout.difficulty}
-                  </span>
+                  </div>
                 </div>
 
-                <h3>{workout.name}</h3>
-                <p>{workout.description}</p>
+                {/* Card Body */}
+                <div className={styles["workout-body"]}>
+                  <h3 className={styles["workout-name"]}>{workout.name}</h3>
+                  <p className={styles["workout-desc"]}>{workout.description}</p>
 
-                <div className={cx([styles, sharedStyles], "workout-meta")}>
-                  <span>{workout.duration} min</span>
-                  <span>{workout.exercisesList.length} exercises</span>
-                </div>
-
-                <div className={cx([styles, sharedStyles], "muscle-tags")}>
-                  {workout.muscleGroups.map((group) => (
-                    <span key={group}>{group}</span>
-                  ))}
-                </div>
-
-                <div className={cx([styles, sharedStyles], "workout-actions")}>
-                  <Link
-                    className={cx(
-                      [styles, sharedStyles],
-                      "secondary-button workout-button",
+                  {/* Spec Row */}
+                  <div className={styles["specs-row"]}>
+                    <div className={styles["spec-pill"]}>
+                      <span className={styles["spec-icon"]}>⏱️</span>
+                      <span>{workout.duration} min</span>
+                    </div>
+                    <div className={styles["spec-pill"]}>
+                      <span className={styles["spec-icon"]}>📋</span>
+                      <span>{workout.exercisesList.length} movements</span>
+                    </div>
+                    {totalSets > 0 && (
+                      <div className={styles["spec-pill"]}>
+                        <span className={styles["spec-icon"]}>⚡</span>
+                        <span>{totalSets} sets</span>
+                      </div>
                     )}
-                    to={`/workouts/${workout.id}`}
-                  >
-                    View
-                  </Link>
-                  <Link
-                    className={cx(
-                      [styles, sharedStyles],
-                      "primary-button workout-button",
-                    )}
-                    to={`/workouts/${workout.id}/active`}
-                  >
-                    Start
-                  </Link>
+                  </div>
+
+                  {/* Muscle Tags */}
+                  <div className={styles["muscle-tags-wrap"]}>
+                    {workout.muscleGroups.map((group, idx) => (
+                      <span
+                        key={group}
+                        className={`${styles["muscle-chip"]} ${idx === 0 ? styles["primary-muscle"] : ""}`}
+                      >
+                        {group}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className={styles["actions-row"]}>
+                    <Link
+                      to={`/workouts/${workout.id}`}
+                      className={styles["view-btn"]}
+                    >
+                      View Routine →
+                    </Link>
+                    <Link
+                      to={`/workouts/${workout.id}/active`}
+                      className={styles["start-btn"]}
+                    >
+                      ▶ Start
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))
+              </article>
+            );
+          })
         ) : (
-          <div className={cx([styles, sharedStyles], "card-panel empty-state")}>
-            <h3>No workouts match your filters.</h3>
-            <p>Try adjusting the search or selecting a different category.</p>
+          <div className={styles["empty-state-card"]}>
+            <div className={styles["empty-icon"]}>🔍</div>
+            <h3 className={styles["empty-title"]}>No workouts match your filters</h3>
+            <p className={styles["empty-text"]}>
+              Try clearing your search terms or selecting &ldquo;All Categories&rdquo; to explore all curated routines.
+            </p>
+            <button
+              type="button"
+              className={styles["reset-btn"]}
+              onClick={() => {
+                setQuery("");
+                setCategory("All");
+                setDifficulty("All");
+              }}
+            >
+              Reset All Filters
+            </button>
           </div>
         )}
       </section>

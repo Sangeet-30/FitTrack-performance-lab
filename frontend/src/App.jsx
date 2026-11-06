@@ -2,12 +2,12 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { useSelector } from "react-redux";
 import AppShell from "./components/layout/AppShell.jsx";
-import Landing from "./pages/Landing.jsx";
-import Login from "./pages/Auth/Login.jsx";
-import Signup from "./pages/Auth/Signup.jsx";
-import Onboarding from "./pages/Onboarding/Onboarding.jsx";
-import Dashboard from "./pages/Dashboard/Dashboard.jsx";
-import Workouts from "./pages/Workouts/Workouts.jsx";
+const Landing = lazy(() => import("./pages/Landing.jsx"));
+const Login = lazy(() => import("./pages/Auth/Login.jsx"));
+const Signup = lazy(() => import("./pages/Auth/Signup.jsx"));
+const Onboarding = lazy(() => import("./pages/Onboarding/Onboarding.jsx"));
+const Dashboard = lazy(() => import("./pages/Dashboard/Dashboard.jsx"));
+const Workouts = lazy(() => import("./pages/Workouts/Workouts.jsx"));
 
 const WorkoutDetail = lazy(() => import("./pages/Workouts/WorkoutDetail.jsx"));
 const ActiveWorkout = lazy(() => import("./pages/Workouts/ActiveWorkout.jsx"));
@@ -57,7 +57,9 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/logs" element={<Logs />} />
           <Route path="/workouts" element={<Workouts />} />
+          <Route path="/workout" element={<Navigate to="/workouts" replace />} />
           <Route path="/workouts/:workoutId" element={<WorkoutDetail />} />
+          <Route path="/workout/:workoutId" element={<WorkoutDetail />} />
           <Route
             path="/workouts/:workoutId/active"
             element={<ActiveWorkout />}

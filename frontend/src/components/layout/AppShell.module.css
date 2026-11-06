@@ -544,21 +544,29 @@
 
 .demo-banner-link {
   font-weight: 700;
-  color: #ef4444;
+  color: #b91c1c;
   text-decoration: underline;
 }
 
+:global(html.dark) .demo-banner-link {
+  color: #fca5a5;
+}
+
 .demo-banner-link:hover {
-  color: #dc2626;
+  color: #991b1b;
+}
+
+:global(html.dark) .demo-banner-link:hover {
+  color: #ffffff;
 }
 
 /* Topbar Header matching Photo 2 */
 .dashboard-topbar {
-  padding: 32px 40px 18px;
+  padding: 22px 40px 14px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 24px;
+  gap: 20px;
 }
 
 .topbar-left {
@@ -576,9 +584,9 @@
 
 .topbar-heading {
   margin: 6px 0 4px;
-  font-family: "Georgia", "Cambria", "Times New Roman", serif;
-  font-size: 2.3rem;
-  font-weight: 700;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 2.2rem;
+  font-weight: 850;
   color: var(--text-main);
   letter-spacing: -0.025em;
   line-height: 1.15;
@@ -784,4 +792,14 @@
   .page-shell {
     padding: 8px 16px 24px;
   }
+}
+
+/* Accessible Footer */
+.dashboard-footer {
+  padding: 24px 40px 32px;
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }

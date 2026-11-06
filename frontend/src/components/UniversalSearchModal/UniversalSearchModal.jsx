@@ -142,6 +142,7 @@ export default function UniversalSearchModal({ isOpen, onClose }) {
 
   // Extract exercise list from workouts
   const exerciseItems = useMemo(() => {
+    if (!isOpen) return [];
     const list = [];
     const seen = new Set();
     workouts.forEach((w) => {
@@ -160,10 +161,11 @@ export default function UniversalSearchModal({ isOpen, onClose }) {
       });
     });
     return list;
-  }, []);
+  }, [isOpen]);
 
   // Pre-built workouts
   const workoutItems = useMemo(() => {
+    if (!isOpen) return [];
     return workouts.map((w) => ({
       id: `w-${w.id}`,
       title: w.name,
@@ -172,7 +174,7 @@ export default function UniversalSearchModal({ isOpen, onClose }) {
       path: "/workouts",
       badge: w.category,
     }));
-  }, []);
+  }, [isOpen]);
 
   // Filtered results
   const filteredResults = useMemo(() => {
@@ -255,6 +257,7 @@ export default function UniversalSearchModal({ isOpen, onClose }) {
             type="text"
             className={styles["search-input"]}
             placeholder="Search pages, workouts, or exercises..."
+            aria-label="Search pages, workouts, or exercises"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             data-testid="universal-search-input"

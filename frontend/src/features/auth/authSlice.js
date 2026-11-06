@@ -34,8 +34,8 @@ const authSlice = createSlice({
     loginSuccess: (state, action) => {
       state.isAuthenticated = true;
       state.user = action.payload;
-      state.demoMode = action.payload?.demoMode ?? false;
-      state.isReadOnly = action.payload?.isReadOnly ?? (action.payload?.demoMode ?? false);
+      state.demoMode = Boolean(action.payload?.demoMode);
+      state.isReadOnly = Boolean(action.payload?.isReadOnly ?? action.payload?.demoMode);
       state.rememberMe = action.payload?.rememberMe ?? true;
     },
     logout: (state) => {

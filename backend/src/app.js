@@ -37,7 +37,8 @@ app.disable('x-powered-by');
 app.use(helmet());
 
 // CORS configuration: Strict whitelist matching CLIENT_URL / CLIENT_ORIGIN
-const rawOrigins = process.env.CLIENT_URL || process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+const defaultDevOrigins = 'http://localhost:5173,http://localhost:4173,http://127.0.0.1:5173,http://127.0.0.1:4173';
+const rawOrigins = process.env.CLIENT_URL || process.env.CLIENT_ORIGIN || (isProd ? 'http://localhost:5173,http://localhost:4173' : defaultDevOrigins);
 const allowedOrigins = rawOrigins
   .split(',')
   .map((item) => item.trim())

@@ -27,26 +27,31 @@ function Settings() {
     }
   };
 
-  const planName = user?.tier || authUser?.tier || "Free Athlete Plan";
+  const level = user?.fitnessLevel || authUser?.fitnessLevel;
+  const athleteStatus = demoMode
+    ? "Demo Overview"
+    : level
+    ? `${level} Athlete`
+    : "Active Athlete";
 
   const settingsSections = [
     {
-      title: "Account",
+      title: "Account & Interface",
       fields: [
         {
-          label: "Email notifications",
+          label: "Email Notifications",
           key: "notifications",
           type: "checkbox",
           readOnly: false,
         },
         {
-          label: "Membership tier",
-          value: planName,
+          label: "Athlete Status",
+          value: athleteStatus,
           type: "info",
           readOnly: true,
         },
         {
-          label: "Language",
+          label: "Interface Language",
           key: "language",
           type: "select",
           options: [
@@ -63,23 +68,23 @@ function Settings() {
       ],
     },
     {
-      title: "Training",
+      title: "Training Engine Controls",
       fields: [
         {
-          label: "Measurement units",
+          label: "Standard Measurement Units",
           key: "units",
           type: "select",
           options: ["kg", "lb"],
           readOnly: false,
         },
         {
-          label: "Auto-save workouts",
+          label: "Auto-Save Active Workouts",
           key: "autoSaveWorkouts",
           type: "checkbox",
           readOnly: false,
         },
         {
-          label: "Rest timer",
+          label: "Inter-Set Rest Timer",
           key: "restTimer",
           type: "select",
           options: [30, 60, 90, 120, 180],
@@ -87,7 +92,7 @@ function Settings() {
           readOnly: false,
         },
         {
-          label: "Workout reminders",
+          label: "Workout Reminder Cadence",
           key: "workoutReminders",
           type: "select",
           options: ["Off", "Daily", "Weekdays", "Weekly"],
@@ -96,23 +101,23 @@ function Settings() {
       ],
     },
     {
-      title: "Privacy & Data",
+      title: "Privacy & Cloud Security",
       fields: [
         {
-          label: "Profile visibility",
+          label: "Profile Visibility Mode",
           key: "profileVisibility",
           type: "select",
           options: ["Private", "Public"],
           readOnly: false,
         },
         {
-          label: "Share progress with coach",
+          label: "Share Analytics with Coach",
           key: "shareProgress",
           type: "checkbox",
           readOnly: false,
         },
         {
-          label: "Two-factor authentication",
+          label: "Two-Factor Authentication",
           key: "twoFactorAuth",
           type: "checkbox",
           readOnly: false,
@@ -122,64 +127,108 @@ function Settings() {
   ];
 
   return (
-    <div className={cx([styles, sharedStyles], "settings-page")}>
-      <section
-        className={cx([styles, sharedStyles], "page-header-block card-panel")}
-      >
-        <div>
-          <p className={cx([styles, sharedStyles], "eyebrow accent")}>
-            Settings
+    <div className={styles["settings-page"]}>
+      {/* SECTION 1: EXECUTIVE HEADER */}
+      <section className={styles["settings-header-card"]}>
+        <div className={styles["header-text"]}>
+          <p className={cx([sharedStyles], "eyebrow accent")} style={{ margin: 0 }}>
+            SYSTEM &amp; PREFERENCES
           </p>
-          <h2>Preferences &amp; Account</h2>
+          <h1>Settings &amp; Environment</h1>
+          <p>Configure units of measure, rest timer intervals, notifications, and telemetry options.</p>
         </div>
       </section>
 
-      <section className={cx([styles, sharedStyles], "settings-grid")}>
+      {/* SECTION 2: STATUS STRIP */}
+      <section className={styles["settings-status-strip"]}>
+        <article className={styles["status-card"]}>
+          <span className={styles["status-card-label"]}>Athlete Tier</span>
+          <h3 className={styles["status-card-value"]}>{athleteStatus}</h3>
+          <p className={styles["status-card-sub"]}>Personal training profile</p>
+        </article>
+
+        <article className={styles["status-card"]}>
+          <span className={styles["status-card-label"]}>Active Units</span>
+          <h3 className={styles["status-card-value"]}>
+            {(preferences.units || "kg").toUpperCase()}
+          </h3>
+          <p className={styles["status-card-sub"]}>Metric / Imperial system</p>
+        </article>
+
+        <article className={styles["status-card"]}>
+          <span className={styles["status-card-label"]}>Inter-Set Rest</span>
+          <h3 className={styles["status-card-value"]}>
+            {preferences.restTimer || 90}s
+          </h3>
+          <p className={styles["status-card-sub"]}>Default timer duration</p>
+        </article>
+
+        <article className={styles["status-card"]}>
+          <span className={styles["status-card-label"]}>Auto-Save Engine</span>
+          <h3 className={styles["status-card-value"]}>
+            {preferences.autoSaveWorkouts ? "Active" : "Manual"}
+          </h3>
+          <p className={styles["status-card-sub"]}>Local storage synchronization</p>
+        </article>
+      </section>
+
+      {/* SECTION 3: CONFIGURATION CARDS */}
+      <section className={styles["settings-grid"]}>
         {settingsSections.map((section) => (
-          <article
-            key={section.title}
-            className={cx([styles, sharedStyles], "card-panel settings-card")}
-          >
-            <div className={cx([styles, sharedStyles], "panel-header")}>
+          <article key={section.title} className={styles["settings-card"]}>
+            <div className={styles["settings-card-header"]}>
               <h3>{section.title}</h3>
             </div>
 
-            <div className={cx([styles, sharedStyles], "settings-list")}>
+            <div className={styles["settings-list"]}>
               {section.fields.map((field) => (
-                <div
-                  key={field.label}
-                  className={cx([styles, sharedStyles], "settings-row")}
-                >
-                  <span>{field.label}</span>
+                <div key={field.label} className={styles["settings-row"]}>
+                  <span className={styles["settings-row-label"]}>{field.label}</span>
 
                   {field.type === "checkbox" ? (
                     <label
-                      className={cx([styles, sharedStyles], "settings-control")}
-                      style={field.readOnly ? { opacity: 0.6, cursor: "not-allowed" } : { cursor: "pointer" }}
+                      className={styles["toggle-switch-wrap"]}
+                      style={
+                        field.readOnly
+                          ? { opacity: 0.6, cursor: "not-allowed" }
+                          : { cursor: "pointer" }
+                      }
                     >
                       <input
                         type="checkbox"
                         aria-label={field.label}
                         checked={Boolean(preferences[field.key])}
                         disabled={field.readOnly}
+                        style={{ display: "none" }}
                         onChange={(event) =>
                           !field.readOnly &&
                           handlePreferenceChange(
                             field.key,
-                            event.target.checked,
+                            event.target.checked
                           )
                         }
                       />
-                      <span>
+                      <div
+                        className={`${styles["toggle-switch"]} ${
+                          preferences[field.key] ? styles["active"] : ""
+                        }`}
+                      >
+                        <div className={styles["toggle-knob"]} />
+                      </div>
+                      <span className={styles["toggle-label"]}>
                         {preferences[field.key] ? "Enabled" : "Disabled"}
                       </span>
                     </label>
                   ) : field.type === "select" ? (
                     <select
-                      className={cx([styles, sharedStyles], "settings-control")}
+                      className={styles["settings-select"]}
                       value={preferences[field.key] || field.options[0]}
                       disabled={field.readOnly}
-                      style={field.readOnly ? { opacity: 0.65, cursor: "not-allowed" } : { cursor: "pointer" }}
+                      style={
+                        field.readOnly
+                          ? { opacity: 0.65, cursor: "not-allowed" }
+                          : undefined
+                      }
                       onChange={(event) => {
                         if (field.readOnly) return;
                         const value =
@@ -200,9 +249,7 @@ function Settings() {
                       ))}
                     </select>
                   ) : (
-                    <strong
-                      className={cx([styles, sharedStyles], "settings-info")}
-                    >
+                    <strong className={styles["settings-info-badge"]}>
                       {field.value}
                     </strong>
                   )}

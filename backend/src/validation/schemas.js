@@ -118,6 +118,9 @@ export const profileUpdateSchema = z.object({
   currentWeightKg: z.number().min(20).max(500).optional(),
   equipment: z.enum(['Home Gym', 'Commercial Gym', 'Minimal Equipment', 'Bodyweight Only']).optional(),
   workoutDuration: z.enum(['30 min', '45 min', '60 min', '75 min']).optional(),
+  workoutSplit: z.string().trim().max(100).optional(),
+  futureWorkoutPlan: z.string().trim().max(200).optional(),
+  nextWorkoutDay: z.string().trim().max(50).optional(),
 });
 
 export const nutritionUpdateSchema = z.object({

@@ -2,127 +2,475 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
 }
 
-.filter-panel {
-  padding: 18px 22px;
+/* Hero Header Banner */
+.workouts-hero {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 26px 28px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
-.filter-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+.hero-eyebrow-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.hero-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-red);
+}
+
+.hero-count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.hero-title {
+  margin: 0 0 8px;
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: var(--text-main);
+  letter-spacing: -0.025em;
+}
+
+.hero-subtitle {
+  margin: 0 0 20px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  max-width: 650px;
+  line-height: 1.5;
+}
+
+/* Category Quick Pills */
+.category-pills-scroll {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.category-pills-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.category-pill {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.16s ease;
+}
+
+.category-pill:hover {
+  color: var(--text-main);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.category-pill.active {
+  background: var(--accent-red);
+  color: #ffffff;
+  border-color: var(--accent-red);
+  box-shadow: 0 3px 12px var(--accent-red-glow);
+}
+
+/* Filter Card */
+.filter-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.filter-grid {
+  display: flex;
+  align-items: center;
   gap: 14px;
+  flex-wrap: wrap;
 }
 
-.filter-row input,
-.filter-row select {
+.search-input-wrap {
+  flex: 1;
+  min-width: 260px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.search-field {
+  width: 100%;
+  padding: 11px 40px 11px 42px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card-subtle);
+  color: var(--text-main);
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.16s ease;
+}
+
+.search-field:focus {
+  border-color: var(--accent-red);
+  box-shadow: 0 0 0 3px var(--accent-red-subtle);
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 4px;
+}
+
+.clear-search-btn:hover {
+  color: var(--text-main);
+}
+
+.select-filters-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.select-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.select-field {
   padding: 10px 14px;
   border-radius: 10px;
   border: 1px solid var(--border-color);
   background: var(--bg-card-subtle);
   color: var(--text-main);
+  font-size: 0.88rem;
+  font-weight: 600;
   outline: none;
-  font-size: 0.92rem;
+  cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.filter-row input:focus,
-.filter-row select:focus {
+.select-field:focus {
   border-color: var(--accent-red);
-  box-shadow: 0 0 0 3px var(--accent-red-subtle);
 }
 
+/* Workout Cards Grid */
 .workout-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
   gap: 20px;
 }
 
 .workout-card {
-  overflow: hidden;
-  padding: 0;
-  border: 1px solid var(--border-color);
   background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 18px;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.04);
 }
 
 .workout-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
   border-color: rgba(239, 68, 68, 0.45);
   box-shadow: 0 12px 28px -6px var(--accent-red-glow);
 }
 
-.workout-image {
-  min-height: 120px;
+/* Card Header Strip */
+.card-header-strip {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #09090b 0%, #1c1917 100%);
-  color: #ffffff;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  font-size: 1.15rem;
-  border-bottom: 2px solid var(--accent-red);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-}
-
-.workout-content {
-  padding: 20px 20px 22px;
-}
-
-.workout-topline {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.workout-content h3 {
-  margin: 0 0 10px;
-  color: var(--text-main);
-  font-size: 1.25rem;
-  font-weight: 800;
-}
-
-.workout-content p {
-  margin: 0 0 14px;
-  color: var(--text-muted);
-  font-size: 0.92rem;
-  line-height: 1.5;
-}
-
-.workout-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  color: var(--text-muted);
-  font-weight: 600;
-  font-size: 0.88rem;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
+  padding: 14px 18px;
+  background: var(--bg-card-subtle);
   border-bottom: 1px solid var(--border-color);
 }
 
-.workout-actions {
-  display: flex;
-  gap: 10px;
+.category-flag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-red);
 }
 
-.workout-button {
-  text-decoration: none;
+.difficulty-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.diff-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.diff-dot.beginner {
+  background: #3b82f6;
+}
+
+.diff-dot.intermediate {
+  background: #eab308;
+}
+
+.diff-dot.advanced {
+  background: #ef4444;
+}
+
+/* Card Body */
+.workout-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.workout-name {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+
+.workout-desc {
+  margin: 0 0 16px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Specs Row */
+.specs-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.spec-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-main);
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.spec-icon {
+  font-size: 0.8rem;
+}
+
+/* Muscle Tags */
+.muscle-tags-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+  margin-top: auto;
+}
+
+.muscle-chip {
+  font-size: 0.73rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+}
+
+.muscle-chip.primary-muscle {
+  color: var(--text-main);
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* Action Buttons */
+.actions-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.view-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  padding: 11px 16px;
-  font-weight: 700;
+  padding: 10px 14px;
   border-radius: 10px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.16s ease;
 }
 
+.view-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-red);
+}
+
+.start-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--accent-red);
+  color: #ffffff;
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: all 0.16s ease;
+  box-shadow: 0 3px 10px var(--accent-red-glow);
+}
+
+.start-btn:hover {
+  background: var(--accent-red-hover);
+  transform: translateY(-1px);
+}
+
+/* Empty State Card */
+.empty-state-card {
+  grid-column: 1 / -1;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-color);
+  border-radius: 20px;
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.empty-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 8px;
+}
+
+.empty-text {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  max-width: 420px;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.reset-btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: var(--accent-red);
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.reset-btn:hover {
+  background: var(--accent-red-hover);
+}
+
+/* Mobile Media Queries */
 @media (max-width: 768px) {
-  .filter-row {
+  .workouts-hero {
+    padding: 20px;
+  }
+
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .filter-grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .select-filters-row {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .select-wrap {
+    flex: 1;
+  }
+
+  .select-field {
+    width: 100%;
+  }
+
+  .workout-grid {
     grid-template-columns: 1fr;
   }
 }

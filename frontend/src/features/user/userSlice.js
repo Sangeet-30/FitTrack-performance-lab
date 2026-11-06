@@ -44,7 +44,15 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setProfile: (state, action) => {
-      state.profile = action.payload ? { ...state.profile, ...action.payload } : null;
+      if (!action.payload) {
+        state.profile = null;
+        return;
+      }
+      state.profile = {
+        ...state.profile,
+        ...action.payload,
+        demoMode: Boolean(action.payload?.demoMode),
+      };
     },
     updatePreferences: (state, action) => {
       state.preferences = { ...state.preferences, ...action.payload };
