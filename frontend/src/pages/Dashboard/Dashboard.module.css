@@ -1062,3 +1062,19 @@
     align-items: flex-start;
   }
 }
+
+@media (max-width: 480px) {
+  .athlete-hero {
+    padding: 16px;
+  }
+
+  .recovery-metrics-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .featured-session-card {
+    padding: 16px;
+  }
+}
+

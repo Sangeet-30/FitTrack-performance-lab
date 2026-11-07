@@ -429,3 +429,86 @@
   color: var(--text-muted);
   font-size: 0.95rem;
 }
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+  .headerBlock {
+    padding: 18px 20px;
+  }
+
+  .headerText h2 {
+    font-size: 1.4rem;
+  }
+
+  .macroGrid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+  }
+
+  .macroCard {
+    padding: 16px 18px;
+  }
+
+  .targetsPanel,
+  .formPanel,
+  .mealsPanel {
+    padding: 18px 20px;
+  }
+
+  .mealFormGrid {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 540px) {
+  .headerBlock {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .dateNavigator {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .macroGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .targetsPanel {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+  }
+
+  .targetsForm {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .targetInput {
+    width: 100%;
+  }
+
+  .mealFormGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .mealItem {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px 16px;
+  }
+
+  .deleteBtn {
+    align-self: flex-end;
+    width: 100%;
+    text-align: center;
+  }
+}
+

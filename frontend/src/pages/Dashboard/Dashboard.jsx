@@ -18,6 +18,7 @@ function Dashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userProfile = useSelector((state) => state.user.profile);
+  const demoMode = useSelector((state) => state.auth?.demoMode);
 
   // Real dashboard metrics
   const [activityList, setActivityList] = useState([]);
@@ -87,7 +88,72 @@ function Dashboard() {
         }
       }
     } catch (err) {
-      if (
+      if (demoMode) {
+        // High-fidelity fallback metrics for demo / preview exploration
+        setCompletedSessionsCount(4);
+        setWeeklyTarget(6);
+        setActivityList([
+          {
+            id: "demo-1",
+            date: "Today",
+            session: "Back & Biceps Hypertrophy",
+            type: "Strength",
+            duration: "52 min",
+            volume: "9,840 kg",
+            rpe: "8.5",
+            dotColor: "#dc2626",
+          },
+          {
+            id: "demo-2",
+            date: "Yesterday",
+            session: "Chest & Triceps Power",
+            type: "Strength",
+            duration: "48 min",
+            volume: "8,920 kg",
+            rpe: "8.0",
+            dotColor: "#dc2626",
+          },
+          {
+            id: "demo-3",
+            date: "Nov 4, 2026",
+            session: "Legs & Core Overload",
+            type: "Strength",
+            duration: "60 min",
+            volume: "12,450 kg",
+            rpe: "9.0",
+            dotColor: "#dc2626",
+          },
+        ]);
+        setActiveGoals([
+          {
+            _id: "demo-g1",
+            title: "Bench Press",
+            type: "strength",
+            targetValue: 100,
+            currentValue: 92.5,
+            unit: "kg",
+            deadline: "2026-12-31",
+          },
+          {
+            _id: "demo-g2",
+            title: "Weekly Consistency",
+            type: "sessions",
+            targetValue: 6,
+            currentValue: 4,
+            unit: "sessions",
+            deadline: "2026-11-30",
+          },
+        ]);
+        setWeeklyActivity([
+          { day: "Mon", count: 1, done: true },
+          { day: "Tue", count: 1, done: true },
+          { day: "Wed", count: 0, done: false },
+          { day: "Thu", count: 1, done: true },
+          { day: "Fri", count: 1, done: true },
+          { day: "Sat", count: 0, done: false },
+          { day: "Sun", count: 0, done: false },
+        ]);
+      } else if (
         err?.status === 503 ||
         err?.status === 500 ||
         err?.message?.toLowerCase().includes("database") ||
@@ -99,7 +165,7 @@ function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, [dispatch]);
+  }, [demoMode, dispatch]);
 
   useEffect(() => {
     loadDashboard();
@@ -338,6 +404,7 @@ function Dashboard() {
           <button
             type="button"
             onClick={loadDashboard}
+            aria-label="Retry connection to database cluster"
             style={{
               background: "#dc2626",
               color: "#ffffff",
@@ -449,6 +516,7 @@ function Dashboard() {
               <button
                 type="button"
                 className={styles["start-workout-btn"]}
+                aria-label={nextSession.isRest ? "Log recovery session" : "Start today's scheduled workout"}
                 onClick={() => window.dispatchEvent(new CustomEvent("fittrack:open-log"))}
               >
                 {nextSession.isRest ? "▶ LOG RECOVERY" : "▶ START WORKOUT"}
@@ -456,6 +524,7 @@ function Dashboard() {
               <button
                 type="button"
                 className={styles["view-details-btn"]}
+                aria-label={nextSession.isRest ? "View weekly training schedule" : "View routine guide"}
                 onClick={() => (nextSession.isRest ? navigate("/profile") : navigate("/workouts"))}
               >
                 {nextSession.isRest ? "View Schedule" : "View Routine Guide"}
@@ -507,6 +576,7 @@ function Dashboard() {
             <button
               type="button"
               className={styles["card-link-btn"]}
+              aria-label="Learn more about recovery and readiness score"
               onClick={() =>
                 setNotice({
                   isOpen: true,
@@ -586,7 +656,7 @@ function Dashboard() {
         <section className={styles["card"]}>
           <div className={styles["card-header"]}>
             <span className={styles["card-tag"]}>WEEKLY TRAINING HABIT</span>
-            <Link to="/workouts" className={styles["card-link"]}>
+            <Link to="/workouts" className={styles["card-link"]} aria-label="View training split and workout routines">
               View Plan &rarr;
             </Link>
           </div>
@@ -677,7 +747,7 @@ function Dashboard() {
         <section className={styles["card"]}>
           <div className={styles["card-header"]}>
             <span className={styles["card-tag"]}>RECENT TRAINING LOGS</span>
-            <Link to="/logs" className={styles["card-link"]}>
+            <Link to="/logs" className={styles["card-link"]} aria-label="View all past training logs">
               View All Logs &rarr;
             </Link>
           </div>
@@ -734,13 +804,14 @@ function Dashboard() {
                   <path d="m3 3 1 1a2 2 0 0 0 2.8 0l1.4-1.4a2 2 0 0 1 2.8 0l4.3 4.3a2 2 0 0 1 0 2.8l-1.4 1.4a2 2 0 0 0 0 2.8l1.1 1.1" />
                 </svg>
               </div>
-              <h4 className={styles["empty-headline"]}>No workouts logged yet</h4>
+              <h3 className={styles["empty-headline"]}>No workouts logged yet</h3>
               <p className={styles["empty-desc"]}>
                 Start building your training log. Every recorded session updates your volume, readiness, and consistency metrics.
               </p>
               <button
                 type="button"
                 className={styles["quick-log-btn"]}
+                aria-label="Log your first workout session"
                 style={{ padding: "10px 22px", alignSelf: "center" }}
                 onClick={() => window.dispatchEvent(new CustomEvent("fittrack:open-log"))}
               >
@@ -754,7 +825,7 @@ function Dashboard() {
         <section className={styles["card"]}>
           <div className={styles["card-header"]}>
             <span className={styles["card-tag"]}>ACTIVE MILESTONES</span>
-            <Link to="/goals" className={styles["card-link"]}>
+            <Link to="/goals" className={styles["card-link"]} aria-label="Manage active goals and benchmarks">
               Manage Goals &rarr;
             </Link>
           </div>
@@ -801,13 +872,14 @@ function Dashboard() {
                   <circle cx="12" cy="12" r="2" />
                 </svg>
               </div>
-              <h4 className={styles["empty-headline"]}>No active targets</h4>
+              <h3 className={styles["empty-headline"]}>No active targets</h3>
               <p className={styles["empty-desc"]}>
                 Set personal strength benchmarks, session targets, or bodyweight goals to keep your progress visible.
               </p>
               <Link
                 to="/goals"
                 className={styles["browse-routines-btn"]}
+                aria-label="Set your first training goal"
                 style={{ padding: "10px 22px", alignSelf: "center" }}
               >
                 + Set Your First Goal

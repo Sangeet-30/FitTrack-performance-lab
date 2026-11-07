@@ -18,3 +18,16 @@
   padding-top: 30px;
   padding-bottom: 30px;
 }
+
+@media (max-width: 600px) {
+  .field-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .onboarding-page {
+    padding-top: 16px;
+    padding-bottom: 20px;
+  }
+}
+

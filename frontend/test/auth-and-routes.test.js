@@ -5,9 +5,9 @@ import authReducer, {
   setDemoMode,
 } from '../src/features/auth/authSlice.js';
 import { apiRequest } from '../src/services/api.js';
-import { loginUser, signupUser, logoutUser } from '../src/services/authService.js';
+import { loginUser, signupUser, logoutUser, getCurrentUser } from '../src/services/authService.js';
 
-// Polyfill localStorage in test environment if needed
+// Polyfill localStorage & window in test environment if needed
 if (typeof globalThis.localStorage === 'undefined') {
   const store = new Map();
   globalThis.localStorage = {
@@ -16,6 +16,9 @@ if (typeof globalThis.localStorage === 'undefined') {
     removeItem: (key) => store.delete(key),
     clear: () => store.clear(),
   };
+}
+if (typeof globalThis.window === 'undefined') {
+  globalThis.window = new EventTarget();
 }
 
 describe('Frontend Auth State & Reducers', () => {
@@ -87,8 +90,11 @@ describe('Frontend API Error Handling & Status Codes', () => {
     }
   });
 
-  it('handles HTTP 401 unauthorized and clears stored auth state', async () => {
+  it('handles HTTP 401 unauthorized, clears stored auth state and dispatches unauthorized event', async () => {
     localStorage.setItem('fittrack-auth-state', JSON.stringify({ isAuthenticated: true }));
+    const target = typeof window !== 'undefined' ? window : globalThis;
+    const unauthorizedSpy = vi.fn();
+    target.addEventListener('fittrack:unauthorized', unauthorizedSpy);
 
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
@@ -98,6 +104,20 @@ describe('Frontend API Error Handling & Status Codes', () => {
 
     await expect(apiRequest('/workouts')).rejects.toThrow('Session expired or invalid.');
     expect(localStorage.getItem('fittrack-auth-state')).toBeNull();
+    expect(unauthorizedSpy).toHaveBeenCalled();
+    target.removeEventListener('fittrack:unauthorized', unauthorizedSpy);
+  });
+
+  it('verifies session through getCurrentUser hitting /auth/me', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ user: { id: 'u1', name: 'Verified Athlete', email: 'verified@example.com' } }),
+    });
+
+    const user = await getCurrentUser();
+    expect(user.name).toBe('Verified Athlete');
+    expect(user.email).toBe('verified@example.com');
   });
 
   it('parses HTTP 400 validation error responses', async () => {

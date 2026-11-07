@@ -69,7 +69,23 @@ export const workoutCreateSchema = z.object({
     .trim()
     .min(1, 'Workout name is required.')
     .max(120),
-  category: z.enum(['Strength', 'Hypertrophy', 'Cardio', 'Conditioning', 'Mobility', 'Other']).default('Strength'),
+  category: z
+    .enum([
+      'Strength',
+      'Hypertrophy',
+      'Cardio',
+      'Conditioning',
+      'HIIT',
+      'Full Body',
+      'Upper Body',
+      'Lower Body',
+      'Legs',
+      'Core',
+      'Mobility',
+      'Recovery',
+      'Other',
+    ])
+    .default('Strength'),
   difficulty: z.enum(['Beginner', 'Intermediate', 'Advanced']).default('Intermediate'),
   durationMinutes: z.number().min(1).max(600).optional(),
   durationSeconds: z.number().min(1).max(36000).optional(),
@@ -90,7 +106,7 @@ export const goalCreateSchema = z.object({
   currentValue: z.number().min(0).default(0),
   unit: z.string().trim().max(20).default('kg'),
   dueDate: z.union([z.string(), z.date()]).optional(),
-  status: z.enum(['active', 'completed', 'paused']).default('active'),
+  status: z.enum(['active', 'completed', 'paused', 'archived']).default('active'),
 });
 
 export const goalUpdateSchema = goalCreateSchema.partial();

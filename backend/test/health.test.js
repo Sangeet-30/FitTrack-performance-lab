@@ -13,10 +13,10 @@ describe('Health and CORS Endpoints', () => {
 
     const res = await request(app).get('/api/health');
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(503);
     expect(res.body.status).toBe('degraded');
     expect(res.body.database.status).toBe('disconnected');
-    expect(res.body.database.readyState).toBe(0);
+    expect(res.body.database).not.toHaveProperty('readyState');
   });
 
   it('reports database connected when readyState is 1', async () => {
@@ -27,12 +27,20 @@ describe('Health and CORS Endpoints', () => {
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('ok');
     expect(res.body.database.status).toBe('connected');
-    expect(res.body.database.readyState).toBe(1);
+    expect(res.body.database).not.toHaveProperty('readyState');
   });
 
-  it('permits non-browser requests without Origin header', async () => {
-    const res = await request(app).get('/api/health');
-    expect(res.status).toBe(200);
+  it('permits non-browser requests without Origin header regardless of database state', async () => {
+    vi.spyOn(mongoose.connection, 'readyState', 'get').mockReturnValue(1);
+    const resConnected = await request(app).get('/api/health');
+    expect(resConnected.status).toBe(200);
+    expect(resConnected.headers['access-control-allow-origin']).toBeUndefined();
+
+    // Verify non-browser request reaches handler without CORS rejection even when DB is offline
+    vi.spyOn(mongoose.connection, 'readyState', 'get').mockReturnValue(0);
+    const resOffline = await request(app).get('/api/health');
+    expect(resOffline.status).toBe(503);
+    expect(resOffline.body.database.status).toBe('disconnected');
   });
 
   it('blocks unapproved browser origins with 403', async () => {

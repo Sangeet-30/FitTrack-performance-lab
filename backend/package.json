@@ -8,7 +8,7 @@
     "start": "node src/server.js",
     "seed": "node src/config/seed.js",
     "test": "vitest run",
-    "lint": "node --check src/server.js && node --check src/app.js"
+    "lint": "node --check src/server.js && node --check src/app.js && node --check src/config/db.js && node --check src/config/seed.js && node --check src/middleware/auth.js && node --check src/middleware/validate.js && node --check src/routes/authRoutes.js && node --check src/routes/dashboardRoutes.js && node --check src/routes/goalRoutes.js && node --check src/routes/nutritionRoutes.js && node --check src/routes/profileRoutes.js && node --check src/routes/progressRoutes.js && node --check src/routes/workoutRoutes.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -26,5 +26,8 @@
   "devDependencies": {
     "supertest": "^7.3.1",
     "vitest": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

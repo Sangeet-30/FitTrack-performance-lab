@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import app from '../src/app.js';
 import User from '../src/models/User.js';
+import { workoutCreateSchema, goalCreateSchema } from '../src/validation/schemas.js';
 
 describe('Zod and ObjectId Request Validation', () => {
   const dummyUserId = new mongoose.Types.ObjectId().toString();
@@ -100,9 +101,31 @@ describe('Zod and ObjectId Request Validation', () => {
 
       expect(res.status).toBe(400);
     });
+
+    it('accepts extended athletic workout categories including Hypertrophy, Conditioning, and HIIT', () => {
+      const hypertrophyParsed = workoutCreateSchema.safeParse({ name: 'Chest Session', category: 'Hypertrophy' });
+      expect(hypertrophyParsed.success).toBe(true);
+
+      const conditioningParsed = workoutCreateSchema.safeParse({ name: 'Agility Ladder', category: 'Conditioning' });
+      expect(conditioningParsed.success).toBe(true);
+
+      const hiitParsed = workoutCreateSchema.safeParse({ name: 'Sprint Intervals', category: 'HIIT' });
+      expect(hiitParsed.success).toBe(true);
+    });
   });
 
   describe('Goal Validation', () => {
+    it('accepts consistent goal status values including active, completed, paused, and archived', () => {
+      ['active', 'completed', 'paused', 'archived'].forEach((status) => {
+        const parsed = goalCreateSchema.safeParse({
+          title: 'Target Benchmark',
+          targetValue: 100,
+          status,
+        });
+        expect(parsed.success).toBe(true);
+      });
+    });
+
     it('rejects goal creation when targetValue is missing or not positive', async () => {
       const res = await request(app)
         .post('/api/goals')

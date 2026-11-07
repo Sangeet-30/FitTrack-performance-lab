@@ -32,6 +32,9 @@ if (!process.env.JWT_SECRET) {
 
 const app = express();
 
+// Trust reverse proxy (e.g. Render, Railway, AWS ALB, Cloudflare) for secure cookies and rate-limiting
+app.set('trust proxy', 1);
+
 // Security headers
 app.disable('x-powered-by');
 app.use(helmet());
@@ -57,7 +60,9 @@ app.use(
       if (allowedOrigins.includes(origin) || (!isProd && allowedOrigins.includes('*'))) {
         return callback(null, true);
       }
-      return callback(new Error(`CORS blocked: Origin '${origin}' is not authorized.`));
+      const corsError = new Error(`CORS blocked: Origin '${origin}' is not authorized.`);
+      corsError.status = 403;
+      return callback(corsError);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -73,18 +78,17 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('tiny'));
 }
 
-// Health check endpoint (reports exact database status)
+// Health and readiness check endpoint (reports operational status without leaking internal driver details)
 app.get('/api/health', (_req, res) => {
-  const dbState = mongoose.connection.readyState;
-  const isConnected = dbState === 1;
-  res.status(200).json({
+  const isConnected = mongoose.connection.readyState === 1;
+  const statusCode = isConnected ? 200 : 503;
+  res.status(statusCode).json({
     status: isConnected ? 'ok' : 'degraded',
     service: 'fittrack-api',
     uptime: Math.round(process.uptime()),
     timestamp: new Date().toISOString(),
     database: {
       status: isConnected ? 'connected' : 'disconnected',
-      readyState: dbState,
     },
     demoMode: process.env.DEMO_MODE === 'true',
   });
@@ -134,6 +138,9 @@ app.use((error, _req, res, _next) => {
     return res.status(400).json({
       message: `Invalid ID format for parameter '${error.path}'. Must be a 24-character hexadecimal ObjectId.`,
     });
+  }
+  if (error?.message?.startsWith('CORS blocked') || error?.status === 403) {
+    return res.status(403).json({ message: error.message });
   }
   if (
     error?.name === 'MongoServerSelectionError' ||

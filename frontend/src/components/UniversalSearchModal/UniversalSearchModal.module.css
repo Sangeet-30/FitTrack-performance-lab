@@ -94,7 +94,7 @@
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-card-subtle);
   border: 1px solid var(--border-color);
   padding: 3px 6px;
   border-radius: 4px;
@@ -188,7 +188,7 @@
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bg-card-subtle);
   border: 1px solid var(--border-color);
   color: var(--text-muted);
   white-space: nowrap;
@@ -201,4 +201,19 @@
   color: var(--text-muted);
   font-size: 0.9rem;
 }
+
+@media (max-width: 600px) {
+  .search-backdrop {
+    padding: 16px 12px;
+  }
+
+  .search-dialog {
+    max-height: 85vh;
+  }
+
+  .esc-badge {
+    display: none;
+  }
+}
+
 

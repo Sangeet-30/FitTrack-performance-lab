@@ -31,8 +31,9 @@
 }
 
 .back-link:hover {
-  color: #ffffff;
+  color: var(--accent-red);
   border-color: var(--accent-red);
+  background: var(--bg-card-subtle);
   transform: translateX(-2px);
 }
 
@@ -192,9 +193,9 @@
 }
 
 .log-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #ffffff;
+  background: var(--bg-card);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
 }
 
 /* 4-Stat Strip */

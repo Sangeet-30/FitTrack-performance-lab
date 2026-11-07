@@ -145,8 +145,10 @@ export default function QuickLogModal({ isOpen, onClose, onSuccess }) {
               >
                 <option value="Strength">Strength</option>
                 <option value="Hypertrophy">Hypertrophy</option>
+                <option value="Cardio">Cardio</option>
                 <option value="Conditioning">Conditioning</option>
                 <option value="Mobility">Mobility</option>
+                <option value="Other">Other</option>
               </select>
             </div>
 

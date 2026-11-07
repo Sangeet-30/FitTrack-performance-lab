@@ -266,3 +266,17 @@
 .auth-switch a:hover {
   text-decoration: underline;
 }
+
+@media (max-width: 480px) {
+  .card-panel,
+  .page-block {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .auth-card {
+    padding: 24px 18px;
+    border-radius: 16px;
+  }
+}
+

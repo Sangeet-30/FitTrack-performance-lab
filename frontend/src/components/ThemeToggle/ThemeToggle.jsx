@@ -10,7 +10,9 @@ function ThemeToggle({ className = "", iconOnly = false }) {
       onClick={toggleTheme}
       aria-label={`Switch to ${isDark ? "day" : "night"} theme`}
       title={`Switch to ${isDark ? "day" : "night"} theme`}
-      className={`relative inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 border cursor-pointer select-none ${
+      className={`relative inline-flex items-center justify-center transition-all duration-200 border cursor-pointer select-none ${
+        iconOnly ? "w-8 h-8 p-0 rounded-lg text-sm" : "gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold tracking-wide"
+      } ${
         isDark
           ? "bg-zinc-900 border-zinc-700/80 text-zinc-200 hover:border-red-500 hover:text-white"
           : "bg-white border-zinc-300 text-zinc-800 hover:border-red-600 hover:text-black shadow-sm"

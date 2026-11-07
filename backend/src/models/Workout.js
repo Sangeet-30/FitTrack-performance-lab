@@ -38,7 +38,21 @@ const workoutSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ['Strength', 'Cardio', 'HIIT', 'Full Body', 'Upper Body', 'Lower Body', 'Legs', 'Core', 'Mobility', 'Other'],
+      enum: [
+        'Strength',
+        'Hypertrophy',
+        'Cardio',
+        'Conditioning',
+        'HIIT',
+        'Full Body',
+        'Upper Body',
+        'Lower Body',
+        'Legs',
+        'Core',
+        'Mobility',
+        'Recovery',
+        'Other',
+      ],
       default: 'Strength',
     },
     difficulty: {

@@ -103,7 +103,8 @@ function AppShell() {
     }
   });
 
-  const menuRef = useRef(null);
+  const mobileMenuRef = useRef(null);
+  const desktopMenuRef = useRef(null);
 
   const toggleSidebar = () => {
     setIsCollapsed((prev) => {
@@ -120,7 +121,9 @@ function AppShell() {
   // Close menus on outside click
   useEffect(() => {
     function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      const inMobile = mobileMenuRef.current?.contains(event.target);
+      const inDesktop = desktopMenuRef.current?.contains(event.target);
+      if (!inMobile && !inDesktop) {
         setProfileMenuOpen(false);
         setShowNotifications(false);
       }
@@ -292,27 +295,93 @@ function AppShell() {
         <div className={styles["brand-header"]}>
           <Link to="/dashboard" className={styles["brand-link"]} title="FitTrack Dashboard">
             <span className={styles["brand-slashes"]}>//</span>
-            {!isCollapsed && <span className={styles["brand-text"]}>FITTRACK</span>}
+            <span className={styles["brand-text"]}>FITTRACK</span>
           </Link>
-          <button
-            type="button"
-            className={styles["collapse-toggle-btn"]}
-            onClick={toggleSidebar}
-            title={isCollapsed ? "Expand sidebar" : "Minimize sidebar (icons only)"}
-            aria-label={isCollapsed ? "Expand sidebar" : "Minimize sidebar"}
-          >
-            {isCollapsed ? (
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="13 17 18 12 13 7" />
-                <polyline points="6 17 11 12 6 7" />
-              </svg>
-            ) : (
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="11 17 6 12 11 7" />
-                <polyline points="18 17 13 12 18 7" />
-              </svg>
+          <div className={styles["header-controls"]} ref={mobileMenuRef}>
+            <ThemeToggle className={styles["mobile-theme-btn"]} iconOnly={true} />
+            <button
+              type="button"
+              className={styles["mobile-profile-btn"]}
+              onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+              aria-expanded={profileMenuOpen}
+              aria-label="User profile menu"
+              title={displayName}
+            >
+              <div className={styles["mobile-avatar"]}>{avatarInitial}</div>
+            </button>
+            <button
+              type="button"
+              className={styles["collapse-toggle-btn"]}
+              onClick={toggleSidebar}
+              title={isCollapsed ? "Expand sidebar" : "Minimize sidebar (icons only)"}
+              aria-label={isCollapsed ? "Expand sidebar" : "Minimize sidebar"}
+            >
+              {isCollapsed ? (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="13 17 18 12 13 7" />
+                  <polyline points="6 17 11 12 6 7" />
+                </svg>
+              ) : (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="11 17 6 12 11 7" />
+                  <polyline points="18 17 13 12 18 7" />
+                </svg>
+              )}
+            </button>
+
+            {/* Mobile Profile Dropdown */}
+            {profileMenuOpen && (
+              <div className={styles["mobile-profile-popover"]}>
+                <div className={styles["popover-header"]}>
+                  <div className={styles["popover-user-badge"]}>{avatarInitial}</div>
+                  <div className={styles["popover-user-info"]}>
+                    <strong>{displayName}</strong>
+                    <small>{user?.email || authUser?.email || "athlete@fittrack.com"}</small>
+                    <span className={styles["popover-user-level"]}>
+                      {demoMode ? "Demo Guest" : (user?.fitnessLevel || authUser?.fitnessLevel || "Athlete")}
+                    </span>
+                  </div>
+                </div>
+                <div className={styles["popover-divider"]} />
+                <Link
+                  to="/profile"
+                  className={styles["popover-item"]}
+                  onClick={() => setProfileMenuOpen(false)}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  <span>Profile Details</span>
+                </Link>
+                <Link
+                  to="/settings"
+                  className={styles["popover-item"]}
+                  onClick={() => setProfileMenuOpen(false)}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                  </svg>
+                  <span>Settings &amp; Preferences</span>
+                </Link>
+                <div className={styles["popover-divider"]} />
+                <button
+                  type="button"
+                  className={styles["popover-logout"]}
+                  onClick={handleLogout}
+                  aria-label="Sign out"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  <span>Sign out</span>
+                </button>
+              </div>
             )}
-          </button>
+          </div>
         </div>
 
         <nav
@@ -336,7 +405,7 @@ function AppShell() {
         </nav>
 
         {/* Sidebar Footer with Theme Toggle & Profile Card */}
-        <div className={styles["sidebar-footer"]} ref={menuRef}>
+        <div className={styles["sidebar-footer"]} ref={desktopMenuRef}>
           <div className={styles["sidebar-theme-wrap"]}>
             <ThemeToggle className={styles["sidebar-theme-btn"]} iconOnly={isCollapsed} />
           </div>
@@ -348,6 +417,9 @@ function AppShell() {
                 <div className={styles["popover-user-info"]}>
                   <strong>{displayName}</strong>
                   <small>{user?.email || authUser?.email || "athlete@fittrack.com"}</small>
+                  <span className={styles["popover-user-level"]}>
+                    {demoMode ? "Demo Guest" : (user?.fitnessLevel || authUser?.fitnessLevel || "Athlete")}
+                  </span>
                 </div>
               </div>
               <div className={styles["popover-divider"]} />
@@ -378,6 +450,7 @@ function AppShell() {
                 type="button"
                 className={styles["popover-logout"]}
                 onClick={handleLogout}
+                aria-label="Sign out"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -505,6 +578,7 @@ function AppShell() {
                 type="button"
                 className={styles["log-session-btn"]}
                 onClick={handleOpenLogModal}
+                aria-label="Log workout session"
               >
                 <span>+</span> LOG SESSION
               </button>
@@ -521,7 +595,51 @@ function AppShell() {
         </div>
 
         <footer className={styles["dashboard-footer"]}>
-          <p>© 2026 FitTrack Pro Performance Lab. High-Performance Athletic Training.</p>
+          <div className={styles["footer-content"]}>
+            <div className={styles["footer-main-info"]}>
+              <span className={styles["footer-copy"]}>
+                &copy; 2026 <strong>FitTrack Pro</strong> • Built &amp; Designed by <strong>Sangeet</strong>
+              </span>
+              <span className={styles["footer-sep"]}>•</span>
+              <span className={styles["footer-stack"]}>
+                <span className={styles["stack-tag"]}>React</span>
+                <span className={styles["stack-dot"]}>+</span>
+                <span className={styles["stack-tag"]}>Node.js</span>
+                <span className={styles["stack-dot"]}>+</span>
+                <span className={styles["stack-tag"]}>Express</span>
+                <span className={styles["stack-dot"]}>+</span>
+                <span className={styles["stack-tag"]}>MongoDB</span>
+              </span>
+            </div>
+            <div className={styles["footer-links"]}>
+              <a
+                href="https://github.com/Sangeet-30"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles["footer-social-link"]}
+                title="GitHub Profile"
+                aria-label="Sangeet GitHub Profile"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+                </svg>
+                <span>GitHub</span>
+              </a>
+              <a
+                href="https://www.linkedin.com/in/sangeet-a62094255/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles["footer-social-link"]}
+                title="LinkedIn Profile"
+                aria-label="Sangeet LinkedIn Profile"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                </svg>
+                <span>LinkedIn</span>
+              </a>
+            </div>
+          </div>
         </footer>
       </main>
 

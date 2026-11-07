@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import mongoose from 'mongoose';
 import app from './app.js';
 import { connectDB } from './config/db.js';
 
@@ -13,6 +14,28 @@ function startServer() {
   }
   return serverInstance;
 }
+
+// Graceful shutdown handling for container recycling (Render, Railway, Docker)
+const handleShutdown = async (signal) => {
+  console.info(`Received ${signal}. Gracefully terminating FitTrack API...`);
+  if (serverInstance) {
+    serverInstance.close(async () => {
+      console.info('HTTP server terminated.');
+      try {
+        await mongoose.connection.close(false);
+        console.info('MongoDB connection closed.');
+      } catch (err) {
+        console.error('Error closing MongoDB connection:', err.message);
+      }
+      process.exit(0);
+    });
+  } else {
+    process.exit(0);
+  }
+};
+
+process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+process.on('SIGINT', () => handleShutdown('SIGINT'));
 
 // Connect to MongoDB Atlas and start HTTP server
 connectDB()

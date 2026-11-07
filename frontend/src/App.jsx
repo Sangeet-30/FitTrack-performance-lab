@@ -1,7 +1,10 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { lazy, Suspense } from "react";
-import { useSelector } from "react-redux";
+import { lazy, Suspense, useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import AppShell from "./components/layout/AppShell.jsx";
+import { getCurrentUser } from "./services/authService.js";
+import { loginSuccess, logout } from "./features/auth/authSlice.js";
+import { setProfile, clearProfile } from "./features/user/userSlice.js";
 const Landing = lazy(() => import("./pages/Landing.jsx"));
 const Login = lazy(() => import("./pages/Auth/Login.jsx"));
 const Signup = lazy(() => import("./pages/Auth/Signup.jsx"));
@@ -21,7 +24,80 @@ const Settings = lazy(() => import("./pages/Settings/Settings.jsx"));
 const NotFound = lazy(() => import("./pages/NotFound/NotFound.jsx"));
 
 function App() {
+  const dispatch = useDispatch();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const isDemo = useSelector((state) => state.auth.demoMode);
+
+  // Check persisted session on startup to prevent stale localStorage auth from bypassing expiry
+  const [isVerifying, setIsVerifying] = useState(() => {
+    return Boolean(isAuthenticated && !isDemo);
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // Listen for unauthorized 401 events dispatched from API calls to immediately synchronize Redux
+    const handleUnauthorized = () => {
+      dispatch(logout());
+      dispatch(clearProfile());
+    };
+    window.addEventListener("fittrack:unauthorized", handleUnauthorized);
+
+    const verifySession = async () => {
+      if (!isAuthenticated || isDemo) {
+        if (isMounted) setIsVerifying(false);
+        return;
+      }
+
+      try {
+        const user = await getCurrentUser();
+        if (isMounted) {
+          if (user) {
+            dispatch(loginSuccess(user));
+            dispatch(setProfile(user));
+          } else {
+            dispatch(logout());
+            dispatch(clearProfile());
+          }
+        }
+      } catch {
+        if (isMounted) {
+          dispatch(logout());
+          dispatch(clearProfile());
+        }
+      } finally {
+        if (isMounted) {
+          setIsVerifying(false);
+        }
+      }
+    };
+
+    verifySession();
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener("fittrack:unauthorized", handleUnauthorized);
+    };
+  }, [dispatch, isAuthenticated, isDemo]);
+
+  if (isVerifying) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+          backgroundColor: "var(--bg-page, #0d0d10)",
+          color: "var(--text-muted, #a1a1aa)",
+          fontSize: "0.95rem",
+          fontWeight: 500,
+        }}
+      >
+        Verifying session...
+      </div>
+    );
+  }
 
   return (
     <Suspense

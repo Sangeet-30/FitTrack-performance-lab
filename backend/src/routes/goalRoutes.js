@@ -65,22 +65,26 @@ router.patch(
   asyncHandler(async (req, res) => {
     const update = { ...req.body };
 
-    // If currentValue >= targetValue, auto-complete if not explicitly specified
-    if (update.currentValue !== undefined && update.targetValue !== undefined) {
-      if (Number(update.currentValue) >= Number(update.targetValue) && !update.status) {
+    const existing = await Goal.findOne({ _id: req.params.id, user: req.user.id });
+    if (!existing) {
+      return res.status(404).json({ message: 'Goal not found.' });
+    }
+
+    const effectiveTarget = update.targetValue !== undefined ? Number(update.targetValue) : Number(existing.targetValue);
+    const effectiveCurrent = update.currentValue !== undefined ? Number(update.currentValue) : Number(existing.currentValue);
+
+    // If an explicit status was provided (e.g. user toggled Reopen or Mark Complete), respect it.
+    // Otherwise, auto-complete when progress meets or exceeds the stored target value.
+    if (!update.status) {
+      if (effectiveTarget > 0 && effectiveCurrent >= effectiveTarget) {
         update.status = 'completed';
+      } else if (existing.status === 'completed' && effectiveCurrent < effectiveTarget && update.currentValue !== undefined) {
+        update.status = 'active';
       }
     }
 
-    const item = await Goal.findOneAndUpdate(
-      { _id: req.params.id, user: req.user.id },
-      { $set: update },
-      { new: true, runValidators: true }
-    );
-
-    if (!item) {
-      return res.status(404).json({ message: 'Goal not found.' });
-    }
+    Object.assign(existing, update);
+    const item = await existing.save();
 
     res.json({
       message: 'Goal updated successfully.',

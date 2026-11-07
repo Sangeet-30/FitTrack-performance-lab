@@ -374,3 +374,45 @@
   background: rgba(34, 197, 94, 0.12);
   border-color: rgba(34, 197, 94, 0.3);
 }
+
+@media (max-width: 540px) {
+  .active-header-card {
+    padding: 16px 18px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .exit-btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .timer-card {
+    padding: 20px 16px;
+  }
+
+  .timer-ring {
+    width: 175px;
+    height: 175px;
+  }
+
+  .timer-content {
+    width: 135px;
+    height: 135px;
+  }
+
+  .time-display {
+    font-size: 2.2rem;
+  }
+
+  .checklist-card {
+    padding: 18px 16px;
+  }
+
+  .exercise-item {
+    padding: 12px 14px;
+  }
+}
+

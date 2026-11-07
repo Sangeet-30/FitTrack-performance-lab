@@ -11,10 +11,11 @@ const router = Router();
 
 const getCookieOptions = () => {
   const isProd = process.env.NODE_ENV === 'production';
-  const sameSite = process.env.COOKIE_SAME_SITE || 'lax';
+  // In cross-domain production (e.g. Vercel frontend -> Render backend), sameSite must be 'none' with secure: true
+  const sameSite = process.env.COOKIE_SAME_SITE || (isProd ? 'none' : 'lax');
   return {
     httpOnly: true,
-    secure: isProd,
+    secure: isProd || sameSite === 'none',
     sameSite,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     path: '/',

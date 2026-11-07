@@ -93,12 +93,22 @@ describe('Multi-Tenant Data Isolation', () => {
 
   describe('Goal Tenant Isolation', () => {
     it('prevents User B from updating User A goal by returning 404', async () => {
-      vi.spyOn(Goal, 'findOneAndUpdate').mockImplementation(({ _id, user }) => {
+      const mockGoalMatcher = ({ _id, user }) => {
         if (_id.toString() === goalId && user.toString() === userAId) {
-          return Promise.resolve({ _id: goalId, user: userAId });
+          return Promise.resolve({
+            _id: goalId,
+            user: userAId,
+            targetValue: 100,
+            currentValue: 50,
+            status: 'active',
+            save: vi.fn().mockResolvedValue({ _id: goalId, user: userAId }),
+          });
         }
         return Promise.resolve(null);
-      });
+      };
+
+      vi.spyOn(Goal, 'findOne').mockImplementation(mockGoalMatcher);
+      vi.spyOn(Goal, 'findOneAndUpdate').mockImplementation(mockGoalMatcher);
 
       const res = await request(app)
         .patch(`/api/goals/${goalId}`)

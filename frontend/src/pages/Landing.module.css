@@ -652,3 +652,141 @@
     display: none;
   }
 }
+
+/* Landing Page Footer */
+.landingFooter {
+  margin-top: 4rem;
+  padding: 24px 0 32px;
+  border-top: 1px solid var(--border-color);
+  background: transparent;
+}
+
+.footerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.footerMainInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.footerCopy {
+  color: var(--text-muted);
+  font-size: 0.84rem;
+}
+
+.footerCopy strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.footerSep {
+  color: var(--text-subtle);
+  opacity: 0.6;
+}
+
+.footerStack {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stackTag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  letter-spacing: 0.02em;
+}
+
+.stackDot {
+  font-size: 0.70rem;
+  color: var(--text-subtle);
+}
+
+.footerLinks {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.socialLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.80rem;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  transition: all 0.18s ease;
+}
+
+.socialLink svg {
+  flex-shrink: 0;
+}
+
+.socialLink:hover {
+  color: var(--text-main);
+  border-color: var(--accent-red);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .footerContent {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  .landingPage {
+    padding: 0 1rem 3.5rem;
+  }
+
+  .landingNav {
+    padding: 1.25rem 0;
+  }
+
+  .navActions {
+    gap: 0.75rem;
+  }
+
+  .startFreeBtn {
+    padding: 0.55rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .heroSection {
+    padding: 2.5rem 0 2rem;
+  }
+
+  .heroTitle {
+    font-size: 2.4rem;
+  }
+
+  .heroActions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .heroPrimaryBtn,
+  .heroSecondaryBtn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

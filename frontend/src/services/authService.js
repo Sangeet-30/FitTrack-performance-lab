@@ -14,20 +14,16 @@ export const demoAuthUser = {
 };
 
 export const startDemoOverviewSession = async () => {
-  try {
-    const data = await apiRequest('/auth/demo', {
-      method: 'POST',
-      body: JSON.stringify({ guestName: 'Demo User' }),
-    });
-    return {
-      ...data?.user,
-      name: 'Demo User',
-      demoMode: true,
-      isReadOnly: true,
-    };
-  } catch {
-    return demoAuthUser;
-  }
+  const data = await apiRequest('/auth/demo', {
+    method: 'POST',
+    body: JSON.stringify({ guestName: 'Demo User' }),
+  });
+  return {
+    ...data?.user,
+    name: data?.user?.name || 'Demo User',
+    demoMode: true,
+    isReadOnly: true,
+  };
 };
 
 export const demoLogin = startDemoOverviewSession;

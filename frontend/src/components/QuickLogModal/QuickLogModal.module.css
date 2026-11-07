@@ -81,7 +81,7 @@
 
 .modal-close:hover {
   color: var(--text-main);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bg-card-subtle);
 }
 
 .modal-form {
@@ -189,9 +189,35 @@
 }
 
 @media (max-width: 540px) {
+  .modal-backdrop {
+    padding: 12px;
+  }
+
+  .modal-dialog {
+    padding: 20px 16px;
+    border-radius: 14px;
+  }
+
+  .modal-title {
+    font-size: 1.15rem;
+  }
+
   .form-row-2,
   .form-row-3 {
     grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .modal-cancel-btn,
+  .modal-submit-btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
   }
 }
 

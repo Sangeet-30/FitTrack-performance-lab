@@ -35,6 +35,10 @@ export async function apiRequest(path, options = {}) {
       } catch {
         // ignore
       }
+      const eventTarget = typeof window !== 'undefined' ? window : globalThis;
+      if (typeof eventTarget?.dispatchEvent === 'function') {
+        eventTarget.dispatchEvent(new CustomEvent('fittrack:unauthorized'));
+      }
     }
     const error = new Error(payload?.message || `Request failed with status ${response.status}.`);
     error.status = response.status;
