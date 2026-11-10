@@ -28,10 +28,8 @@ function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const isDemo = useSelector((state) => state.auth.demoMode);
 
-  // Check persisted session on startup to prevent stale localStorage auth from bypassing expiry
-  const [isVerifying, setIsVerifying] = useState(() => {
-    return Boolean(isAuthenticated && !isDemo);
-  });
+  // Check server session on startup to restore valid session even if Redux auth is missing; preserve demo mode
+  const [isVerifying, setIsVerifying] = useState(() => !isDemo);
 
   useEffect(() => {
     let isMounted = true;
@@ -43,8 +41,9 @@ function App() {
     };
     window.addEventListener("fittrack:unauthorized", handleUnauthorized);
 
-    const verifySession = async () => {
-      if (!isAuthenticated || isDemo) {
+    const restoreSession = async () => {
+      // Preserve demo mode: do not overwrite active demo session with server check
+      if (isDemo) {
         if (isMounted) setIsVerifying(false);
         return;
       }
@@ -55,13 +54,13 @@ function App() {
           if (user) {
             dispatch(loginSuccess(user));
             dispatch(setProfile(user));
-          } else {
+          } else if (isAuthenticated) {
             dispatch(logout());
             dispatch(clearProfile());
           }
         }
       } catch {
-        if (isMounted) {
+        if (isMounted && isAuthenticated) {
           dispatch(logout());
           dispatch(clearProfile());
         }
@@ -72,13 +71,13 @@ function App() {
       }
     };
 
-    verifySession();
+    restoreSession();
 
     return () => {
       isMounted = false;
       window.removeEventListener("fittrack:unauthorized", handleUnauthorized);
     };
-  }, [dispatch, isAuthenticated, isDemo]);
+  }, [dispatch]);
 
   if (isVerifying) {
     return (

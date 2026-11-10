@@ -51,6 +51,71 @@ export const SPLIT_SCHEDULES = {
       Sunday: { session: "Sunday Rest & Recovery", category: "Recovery", isRest: true, pairedWith: null },
     },
   },
+  "Bro Split (Chest, Back, Legs, Shoulders, Arms)": {
+    daysPerWeek: 5,
+    rotationDays: 5,
+    schedule: {
+      Monday: { session: "Chest Day", category: "Chest", isRest: false, pairedWith: null },
+      Tuesday: { session: "Back Day", category: "Back", isRest: false, pairedWith: null },
+      Wednesday: { session: "Legs Day", category: "Legs", isRest: false, pairedWith: null },
+      Thursday: { session: "Shoulders Day", category: "Strength", isRest: false, pairedWith: null },
+      Friday: { session: "Arms Day", category: "Strength", isRest: false, pairedWith: null },
+      Saturday: { session: "Saturday Rest & Recovery", category: "Recovery", isRest: true, pairedWith: null },
+      Sunday: { session: "Sunday Rest & Recovery", category: "Recovery", isRest: true, pairedWith: null },
+    },
+  },
+  "Bro Split": {
+    daysPerWeek: 5,
+    rotationDays: 5,
+    schedule: {
+      Monday: { session: "Chest Day", category: "Chest", isRest: false, pairedWith: null },
+      Tuesday: { session: "Back Day", category: "Back", isRest: false, pairedWith: null },
+      Wednesday: { session: "Legs Day", category: "Legs", isRest: false, pairedWith: null },
+      Thursday: { session: "Shoulders Day", category: "Strength", isRest: false, pairedWith: null },
+      Friday: { session: "Arms Day", category: "Strength", isRest: false, pairedWith: null },
+      Saturday: { session: "Saturday Rest & Recovery", category: "Recovery", isRest: true, pairedWith: null },
+      Sunday: { session: "Sunday Rest & Recovery", category: "Recovery", isRest: true, pairedWith: null },
+    },
+  },
+  "Upper / Lower Split": {
+    daysPerWeek: 4,
+    rotationDays: 4,
+    schedule: {
+      Monday: { session: "Upper Body Power", category: "Strength", isRest: false, pairedWith: "Thursday" },
+      Tuesday: { session: "Lower Body Power", category: "Legs", isRest: false, pairedWith: "Friday" },
+      Wednesday: { session: "Mid-Week Active Recovery", category: "Recovery", isRest: true, pairedWith: null },
+      Thursday: { session: "Upper Body Hypertrophy", category: "Hypertrophy", isRest: false, pairedWith: "Monday" },
+      Friday: { session: "Lower Body Hypertrophy", category: "Legs", isRest: false, pairedWith: "Tuesday" },
+      Saturday: { session: "Weekend Conditioning / Rest", category: "Recovery", isRest: true, pairedWith: null },
+      Sunday: { session: "Sunday Rest & Recovery", category: "Recovery", isRest: true, pairedWith: null },
+    },
+  },
+  "Arnold Split (Chest & Back, Shoulders & Arms, Legs)": {
+    daysPerWeek: 6,
+    rotationDays: 3,
+    schedule: {
+      Monday: { session: "Chest & Back Density", category: "Chest", isRest: false, pairedWith: "Thursday" },
+      Tuesday: { session: "Shoulders & Arms Builder", category: "Strength", isRest: false, pairedWith: "Friday" },
+      Wednesday: { session: "Legs Power & Calves", category: "Legs", isRest: false, pairedWith: "Saturday" },
+      Thursday: { session: "Chest & Back Density", category: "Chest", isRest: false, pairedWith: "Monday" },
+      Friday: { session: "Shoulders & Arms Builder", category: "Strength", isRest: false, pairedWith: "Tuesday" },
+      Saturday: { session: "Legs Power & Calves", category: "Legs", isRest: false, pairedWith: "Wednesday" },
+      Sunday: { session: "Sunday Rest & Recovery", category: "Recovery", isRest: true, pairedWith: null },
+    },
+  },
+  "Arnold Split": {
+    daysPerWeek: 6,
+    rotationDays: 3,
+    schedule: {
+      Monday: { session: "Chest & Back Density", category: "Chest", isRest: false, pairedWith: "Thursday" },
+      Tuesday: { session: "Shoulders & Arms Builder", category: "Strength", isRest: false, pairedWith: "Friday" },
+      Wednesday: { session: "Legs Power & Calves", category: "Legs", isRest: false, pairedWith: "Saturday" },
+      Thursday: { session: "Chest & Back Density", category: "Chest", isRest: false, pairedWith: "Monday" },
+      Friday: { session: "Shoulders & Arms Builder", category: "Strength", isRest: false, pairedWith: "Tuesday" },
+      Saturday: { session: "Legs Power & Calves", category: "Legs", isRest: false, pairedWith: "Wednesday" },
+      Sunday: { session: "Sunday Rest & Recovery", category: "Recovery", isRest: true, pairedWith: null },
+    },
+  },
 };
 
 const DAYS_OF_WEEK = [

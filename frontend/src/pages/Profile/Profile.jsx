@@ -66,6 +66,23 @@ const nextDayOptions = [
   "Sunday",
 ];
 
+const DEFAULT_DEMO_PROFILE = {
+  name: "Demo Athlete",
+  email: "demo@fittrack.app",
+  age: 26,
+  heightCm: 178,
+  currentWeightKg: 74.5,
+  units: "kg",
+  fitnessLevel: "Intermediate",
+  goal: "Build Muscle",
+  trainingDays: 6,
+  equipment: "Commercial Gym",
+  workoutDuration: "45 min",
+  workoutSplit: "Bro Split (Chest, Back, Legs, Shoulders, Arms)",
+  futureWorkoutPlan: "Chest Hypertrophy & Density",
+  nextWorkoutDay: "Tuesday",
+};
+
 function Profile() {
   const dispatch = useDispatch();
   const profile = useSelector((state) => state.user.profile);
@@ -73,13 +90,37 @@ function Profile() {
   const demoMode = useSelector((state) => state.auth.demoMode);
   const units = useSelector((state) => state.user.preferences.units) || profile?.units || "kg";
 
+  const isDemoUser = Boolean(demoMode || authUser?.isDemo || authUser?.email === "demo@fittrack.app");
+
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [notice, setNotice] = useState({ isOpen: false, title: "", message: "" });
+  const [notice, setNotice] = useState({ isOpen: false, title: "", message: "", isDemo: false });
+
+  const effectiveProfile = useMemo(() => {
+    if (isDemoUser) {
+      return {
+        ...DEFAULT_DEMO_PROFILE,
+        name: "Demo Athlete",
+        email: "demo@fittrack.app",
+        trainingDays: 6,
+        age: 26,
+        heightCm: 178,
+        currentWeightKg: 74.5,
+        goal: profile?.goal || DEFAULT_DEMO_PROFILE.goal,
+        fitnessLevel: profile?.fitnessLevel || DEFAULT_DEMO_PROFILE.fitnessLevel,
+        workoutSplit: profile?.workoutSplit || DEFAULT_DEMO_PROFILE.workoutSplit,
+        futureWorkoutPlan: profile?.futureWorkoutPlan || DEFAULT_DEMO_PROFILE.futureWorkoutPlan,
+        nextWorkoutDay: profile?.nextWorkoutDay || DEFAULT_DEMO_PROFILE.nextWorkoutDay,
+        equipment: profile?.equipment || DEFAULT_DEMO_PROFILE.equipment,
+        workoutDuration: profile?.workoutDuration || DEFAULT_DEMO_PROFILE.workoutDuration,
+      };
+    }
+    return profile || {};
+  }, [isDemoUser, profile]);
 
   // Sync profile from backend on mount
   const loadProfile = useCallback(async () => {
-    if (demoMode) return;
+    if (isDemoUser) return;
     try {
       const data = await apiRequest("/profile");
       if (data?.user) {
@@ -88,43 +129,46 @@ function Profile() {
     } catch {
       // Offline or network error - retain existing state gracefully
     }
-  }, [demoMode, dispatch]);
+  }, [isDemoUser, dispatch]);
 
   useEffect(() => {
     loadProfile();
   }, [loadProfile]);
 
   const displayName = useMemo(() => {
+    if (isDemoUser) return "Demo Athlete";
     if (typeof profile?.name === "string" && profile.name.trim()) return profile.name.trim();
     if (typeof authUser?.name === "string" && authUser.name.trim()) return authUser.name.trim();
     return "Athlete";
-  }, [profile, authUser]);
+  }, [isDemoUser, profile, authUser]);
 
   const displayEmail = useMemo(() => {
+    if (isDemoUser) return "demo@fittrack.app";
     if (typeof profile?.email === "string" && profile.email.trim()) return profile.email.trim();
     if (typeof authUser?.email === "string" && authUser.email.trim()) return authUser.email.trim();
     return "athlete@fittrack.app";
-  }, [profile, authUser]);
+  }, [isDemoUser, profile, authUser]);
 
   const userInitials = useMemo(() => {
     const parts = displayName.split(" ").filter(Boolean);
     if (parts.length >= 2) {
       return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
     }
-    return displayName.slice(0, 2).toUpperCase() || "AT";
+    return displayName.slice(0, 2).toUpperCase() || "DA";
   }, [displayName]);
 
   const actualWeight = useMemo(() => {
-    if (profile?.currentWeightKg != null && !Number.isNaN(Number(profile.currentWeightKg))) {
-      return Number(profile.currentWeightKg);
+    const src = isDemoUser ? effectiveProfile : profile;
+    if (src?.currentWeightKg != null && !Number.isNaN(Number(src.currentWeightKg))) {
+      return Number(src.currentWeightKg);
     }
-    if (profile?.weight != null && !Number.isNaN(Number(profile.weight))) {
-      return Number(profile.weight);
+    if (src?.weight != null && !Number.isNaN(Number(src.weight))) {
+      return Number(src.weight);
     }
     return null;
-  }, [profile]);
+  }, [isDemoUser, effectiveProfile, profile]);
 
-  const actualTrainingDays = profile?.trainingDays || 4;
+  const actualTrainingDays = isDemoUser ? 6 : (profile?.trainingDays || 4);
 
   const [form, setForm] = useState({
     name: "",
@@ -143,6 +187,16 @@ function Profile() {
   });
 
   const handleEditClick = () => {
+    if (isDemoUser) {
+      setNotice({
+        isOpen: true,
+        title: "Read-Only Profile",
+        message: "The Demo Athlete profile is fixed and cannot be edited. Create an account to customize your own profile setup.",
+        type: "info",
+        isDemo: true,
+      });
+      return;
+    }
     setForm({
       name: displayName,
       age: profile?.age ?? "",
@@ -168,6 +222,18 @@ function Profile() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (isDemoUser) {
+      setIsEditing(false);
+      setNotice({
+        isOpen: true,
+        title: "Read-Only Profile",
+        message: "Demo user profile cannot be edited. All demo parameters are fixed.",
+        type: "info",
+        isDemo: true,
+      });
+      return;
+    }
+
     setIsSaving(true);
 
     const payload = {
@@ -185,19 +251,6 @@ function Profile() {
       futureWorkoutPlan: form.futureWorkoutPlan.trim(),
       nextWorkoutDay: form.nextWorkoutDay,
     };
-
-    if (demoMode) {
-      dispatch(setProfile({ ...profile, ...payload }));
-      setIsEditing(false);
-      setIsSaving(false);
-      setNotice({
-        isOpen: true,
-        title: "Profile Updated",
-        message: "Profile updated in demo mode.",
-        type: "success",
-      });
-      return;
-    }
 
     try {
       const res = await apiRequest("/profile", {
@@ -228,6 +281,13 @@ function Profile() {
 
   // Profile completion status
   const profileStatus = useMemo(() => {
+    if (isDemoUser) {
+      return {
+        percent: 100,
+        isComplete: true,
+        missingLabels: [],
+      };
+    }
     const requiredFields = [
       { key: "name", label: "Name", present: Boolean(displayName) },
       { key: "age", label: "Age", present: profile?.age != null && profile?.age > 0 },
@@ -246,7 +306,7 @@ function Profile() {
       isComplete: percent === 100,
       missingLabels: missing,
     };
-  }, [profile, displayName, actualWeight]);
+  }, [isDemoUser, profile, displayName, actualWeight]);
 
   return (
     <div className={styles["profile-page"]}>
@@ -266,10 +326,10 @@ function Profile() {
 
             <div className={styles["profile-badges-row"]}>
               <span className={cx([styles["profile-badge"], styles["profile-badge-accent"]])}>
-                {profile?.fitnessLevel || "Intermediate"} Athlete
+                {effectiveProfile?.fitnessLevel || "Intermediate"} Athlete
               </span>
               <span className={styles["profile-badge"]}>
-                Split: {profile?.workoutSplit || "Push / Pull / Legs (PPL)"}
+                Split: {effectiveProfile?.workoutSplit || "Push / Pull / Legs (PPL)"}
               </span>
               <span className={styles["profile-badge"]}>
                 {actualTrainingDays} Sessions / Wk
@@ -279,18 +339,27 @@ function Profile() {
         </div>
 
         {!isEditing && (
-          <button
-            type="button"
-            className={styles["edit-toggle-btn"]}
-            onClick={handleEditClick}
-          >
-            ⚙️ Edit Profile Setup
-          </button>
+          isDemoUser ? (
+            <span
+              className={styles["demo-readonly-pill"]}
+              title="Demo user profile is in read-only mode"
+            >
+              🔒 Demo Profile (Read-Only)
+            </span>
+          ) : (
+            <button
+              type="button"
+              className={styles["edit-toggle-btn"]}
+              onClick={handleEditClick}
+            >
+              ⚙️ Edit Profile Setup
+            </button>
+          )
         )}
       </section>
 
       {/* Incomplete Profile Alert Card */}
-      {!profileStatus.isComplete && !isEditing && (
+      {!profileStatus.isComplete && !isEditing && !isDemoUser && (
         <section className={styles["incomplete-banner"]}>
           <div className={styles["incomplete-top"]}>
             <div className={styles["incomplete-title-wrap"]}>
@@ -636,13 +705,13 @@ function Profile() {
             </div>
             <div className={styles["detail-row"]}>
               <span>Chronological Age</span>
-              <strong>{profile?.age ? `${profile.age} yrs` : "Not provided"}</strong>
+              <strong>{effectiveProfile?.age ? `${effectiveProfile.age} yrs` : "Not provided"}</strong>
             </div>
             <div className={styles["detail-row"]}>
               <span>Stature / Height</span>
               <strong>
-                {profile?.heightCm || profile?.height
-                  ? `${profile.heightCm || profile.height} cm`
+                {effectiveProfile?.heightCm || effectiveProfile?.height
+                  ? `${effectiveProfile.heightCm || effectiveProfile.height} cm`
                   : "Not provided"}
               </strong>
             </div>
@@ -654,7 +723,7 @@ function Profile() {
             </div>
             <div className={styles["detail-row"]}>
               <span>Primary Athletic Goal</span>
-              <strong>{profile?.goal || profile?.mainGoal || "Improve Fitness"}</strong>
+              <strong>{effectiveProfile?.goal || effectiveProfile?.mainGoal || "Improve Fitness"}</strong>
             </div>
           </div>
         </article>
@@ -668,34 +737,34 @@ function Profile() {
             <div className={styles["detail-row"]}>
               <span>Active Workout Split</span>
               <strong style={{ color: "var(--accent-red)" }}>
-                {profile?.workoutSplit || "Push / Pull / Legs (PPL)"}
+                {effectiveProfile?.workoutSplit || "Push / Pull / Legs (PPL)"}
               </strong>
             </div>
             <div className={styles["detail-row"]}>
               <span>Next Planned Session</span>
-              <strong>{profile?.futureWorkoutPlan || "No session scheduled"}</strong>
+              <strong>{effectiveProfile?.futureWorkoutPlan || "No session scheduled"}</strong>
             </div>
             <div className={styles["detail-row"]}>
               <span>Next Target Day</span>
-              <strong>{profile?.nextWorkoutDay || "Not set"}</strong>
+              <strong>{effectiveProfile?.nextWorkoutDay || "Not set"}</strong>
             </div>
             <div className={styles["detail-row"]}>
               <span>Fitness Level</span>
-              <strong>{profile?.fitnessLevel || "Intermediate"}</strong>
+              <strong>{effectiveProfile?.fitnessLevel || "Intermediate"}</strong>
             </div>
             <div className={styles["detail-row"]}>
               <span>Facility Equipment Setup</span>
-              <strong>{profile?.equipment || "Commercial Gym"}</strong>
+              <strong>{effectiveProfile?.equipment || "Commercial Gym"}</strong>
             </div>
             <div className={styles["detail-row"]}>
               <span>Preferred Session Length</span>
-              <strong>{profile?.workoutDuration || "45 min"}</strong>
+              <strong>{effectiveProfile?.workoutDuration || "45 min"}</strong>
             </div>
           </div>
 
           {/* Auto-Assigned Schedule Breakdown */}
-          {isThreeDaySplit(profile?.workoutSplit || form.workoutSplit) &&
-            SPLIT_SCHEDULES[profile?.workoutSplit || form.workoutSplit] && (
+          {isThreeDaySplit(effectiveProfile?.workoutSplit || form.workoutSplit) &&
+            SPLIT_SCHEDULES[effectiveProfile?.workoutSplit || form.workoutSplit] && (
               <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--border-color)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                   <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--accent-red)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
@@ -705,7 +774,7 @@ function Profile() {
                 </div>
                 <div className={styles["split-schedule-grid"]}>
                   {Object.entries(
-                    SPLIT_SCHEDULES[profile?.workoutSplit || form.workoutSplit].schedule
+                    SPLIT_SCHEDULES[effectiveProfile?.workoutSplit || form.workoutSplit].schedule
                   ).map(([day, info]) => (
                     <div
                       key={day}

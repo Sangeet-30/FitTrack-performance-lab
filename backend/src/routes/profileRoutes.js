@@ -10,12 +10,22 @@ router.use(protect);
 router.get(
   '/',
   asyncHandler(async (req, res) => {
+    const isDemo = Boolean(req.user?.isDemo || req.user?.email === 'demo@fittrack.app');
+    const userSafe = req.user.toSafeJSON();
+    if (isDemo) {
+      userSafe.trainingDays = 6;
+      if (req.user.trainingDays !== 6 && typeof req.user.save === 'function') {
+        req.user.trainingDays = 6;
+        await req.user.save().catch(() => {});
+      }
+    }
+
     const requiredProfileFields = ['name', 'email', 'goal', 'fitnessLevel', 'trainingDays', 'age', 'heightCm', 'currentWeightKg'];
-    const missingFields = requiredProfileFields.filter((f) => req.user[f] == null || req.user[f] === '');
+    const missingFields = requiredProfileFields.filter((f) => userSafe[f] == null || userSafe[f] === '');
     const completionPercent = Math.round(((requiredProfileFields.length - missingFields.length) / requiredProfileFields.length) * 100);
 
     res.json({
-      user: req.user.toSafeJSON(),
+      user: userSafe,
       profileStatus: {
         isComplete: missingFields.length === 0,
         percent: completionPercent,

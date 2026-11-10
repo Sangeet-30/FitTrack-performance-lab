@@ -31,7 +31,8 @@ export async function apiRequest(path, options = {}) {
     ) {
       try {
         localStorage.removeItem('fittrack-auth-state');
-        sessionStorage.clear();
+        sessionStorage.removeItem('fittrack-auth-state');
+        sessionStorage.removeItem('fittrack_token');
       } catch {
         // ignore
       }

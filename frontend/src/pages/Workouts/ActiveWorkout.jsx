@@ -134,15 +134,25 @@ function ActiveWorkoutSession({ workoutId }) {
         completed: Boolean(completedSets[exercise.name]),
       })),
     }));
+    const durationMin = Math.max(1, Math.round((workout.duration * 60 - secondsLeft) / 60));
+    const cat = workout.category || "Strength";
+    let baseRate = 7.5;
+    if (cat === "Cardio") baseRate = 10;
+    else if (cat === "Conditioning") baseRate = 9;
+    else if (cat === "Mobility") baseRate = 4;
+    const calculatedCalories = Math.round(durationMin * baseRate * 1.12);
+
     try {
       await apiRequest("/workouts", {
         method: "POST",
         body: JSON.stringify({
           planId: workout.id,
           name: workout.name,
+          category: cat,
           startedAt: new Date(Date.now() - Math.max(0, workout.duration * 60 - secondsLeft) * 1000).toISOString(),
           completedAt: new Date().toISOString(),
-          durationMinutes: Math.max(1, Math.round((workout.duration * 60 - secondsLeft) / 60)),
+          durationMinutes: durationMin,
+          caloriesBurned: calculatedCalories,
           exercises,
           notes: "Completed in FitTrack live studio session.",
         }),

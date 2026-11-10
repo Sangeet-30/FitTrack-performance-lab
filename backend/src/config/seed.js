@@ -24,22 +24,37 @@ export async function seedDatabase() {
 
   if (!demoUser) {
     demoUser = await User.create({
-      name: 'Sangeet',
+      name: 'Demo Athlete',
       email: demoEmail,
       passwordHash,
       goal: 'Build Muscle',
       fitnessLevel: 'Intermediate',
-      trainingDays: 4,
-      age: 24,
+      trainingDays: 6,
+      age: 26,
       heightCm: 178,
-      currentWeightKg: 74,
+      currentWeightKg: 74.5,
       equipment: 'Commercial Gym',
       workoutDuration: '45 min',
+      workoutSplit: 'Bro Split (Chest, Back, Legs, Shoulders, Arms)',
+      futureWorkoutPlan: 'Chest Hypertrophy & Density',
+      nextWorkoutDay: 'Tuesday',
       units: 'kg',
       status: 'active',
     });
     console.log('Created demo user:', demoUser.email);
   } else {
+    demoUser.name = 'Demo Athlete';
+    demoUser.goal = 'Build Muscle';
+    demoUser.fitnessLevel = 'Intermediate';
+    demoUser.trainingDays = 6;
+    demoUser.age = 26;
+    demoUser.heightCm = 178;
+    demoUser.currentWeightKg = 74.5;
+    demoUser.equipment = 'Commercial Gym';
+    demoUser.workoutDuration = '45 min';
+    demoUser.workoutSplit = 'Bro Split (Chest, Back, Legs, Shoulders, Arms)';
+    demoUser.futureWorkoutPlan = 'Chest Hypertrophy & Density';
+    demoUser.nextWorkoutDay = 'Tuesday';
     demoUser.passwordHash = passwordHash;
     demoUser.status = 'active';
     await demoUser.save();

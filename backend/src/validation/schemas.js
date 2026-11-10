@@ -63,6 +63,13 @@ const exerciseItemSchema = z.object({
     .optional(),
 });
 
+const notInFuture = (val) => {
+  if (!val) return true;
+  const d = new Date(val);
+  // Allow today across any timezone (+24h buffer for UTC differences) but disallow future dates
+  return !isNaN(d.getTime()) && d.getTime() <= Date.now() + 24 * 60 * 60 * 1000;
+};
+
 export const workoutCreateSchema = z.object({
   name: z
     .string({ error: 'Workout name is required.' })
@@ -94,7 +101,10 @@ export const workoutCreateSchema = z.object({
   caloriesBurned: z.number().min(0).optional(),
   perceivedEffort: z.number().int().min(1).max(10).optional(),
   notes: z.string().max(2000).default(''),
-  completedAt: z.union([z.string().datetime(), z.string().date(), z.string()]).optional(),
+  completedAt: z
+    .union([z.string().datetime(), z.string().date(), z.string()])
+    .optional()
+    .refine(notInFuture, { message: 'Workout date cannot be in the future.' }),
 });
 
 export const workoutUpdateSchema = workoutCreateSchema.partial();
@@ -144,10 +154,15 @@ export const nutritionUpdateSchema = z.object({
     .array(
       z.object({
         name: z.string().trim().min(1, 'Item name is required.'),
+        meal: z
+          .enum(['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Pre-Workout', 'Post-Workout'])
+          .default('Snack')
+          .optional(),
         calories: z.number().min(0).default(0),
         protein: z.number().min(0).default(0),
         carbs: z.number().min(0).default(0),
         fat: z.number().min(0).default(0),
+        consumedAt: z.union([z.string(), z.date()]).optional(),
       })
     )
     .optional(),
@@ -157,7 +172,10 @@ export const nutritionUpdateSchema = z.object({
 });
 
 export const progressCreateSchema = z.object({
-  recordedAt: z.union([z.string(), z.date()]).optional(),
+  recordedAt: z
+    .union([z.string(), z.date()])
+    .optional()
+    .refine(notInFuture, { message: 'Progress checkpoint date cannot be in the future.' }),
   weightKg: z.number().min(20).max(500).optional(),
   bodyFatPercent: z.number().min(1).max(70).optional(),
   measurements: z.record(z.any()).optional(),
@@ -168,7 +186,10 @@ export const progressCreateSchema = z.object({
 );
 
 export const progressUpdateSchema = z.object({
-  recordedAt: z.union([z.string(), z.date()]).optional(),
+  recordedAt: z
+    .union([z.string(), z.date()])
+    .optional()
+    .refine(notInFuture, { message: 'Progress checkpoint date cannot be in the future.' }),
   weightKg: z.number().min(20).max(500).optional(),
   bodyFatPercent: z.number().min(1).max(70).optional(),
   measurements: z.record(z.any()).optional(),

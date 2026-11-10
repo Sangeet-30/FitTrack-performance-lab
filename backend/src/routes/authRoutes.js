@@ -88,7 +88,11 @@ router.post(
 );
 
 router.get('/me', protect, (req, res) => {
-  res.json({ user: req.user.toSafeJSON() });
+  const userSafe = req.user.toSafeJSON();
+  if (req.user?.isDemo || req.user?.email === 'demo@fittrack.app') {
+    userSafe.trainingDays = 6;
+  }
+  res.json({ user: userSafe });
 });
 
 // POST /api/auth/demo - Start Live Demo Overview session
@@ -105,18 +109,29 @@ router.post(
     let user = null;
     if (isDbConnected) {
       user = await User.findOne({ email: 'demo@fittrack.app' });
+      if (user && user.trainingDays !== 6) {
+        user.trainingDays = 6;
+        await user.save().catch(() => {});
+      }
       // In production, do not auto-create the demo user
       if (!user && !isProd) {
         const passwordHash = await bcrypt.hash('password123', 10);
         user = await User.create({
-          name: 'Demo User',
+          name: 'Demo Athlete',
           email: 'demo@fittrack.app',
           passwordHash,
-          goal: 'Improve Fitness',
+          goal: 'Build Muscle',
           fitnessLevel: 'Intermediate',
-          trainingDays: 4,
+          trainingDays: 6,
           units: 'kg',
-          currentWeightKg: 72,
+          currentWeightKg: 74.5,
+          age: 26,
+          heightCm: 178,
+          equipment: 'Commercial Gym',
+          workoutDuration: '45 min',
+          workoutSplit: 'Bro Split (Chest, Back, Legs, Shoulders, Arms)',
+          futureWorkoutPlan: 'Chest Hypertrophy & Density',
+          nextWorkoutDay: 'Tuesday',
         });
       }
     }
@@ -128,13 +143,20 @@ router.post(
       user = {
         _id: '671ee27c0000000000000001',
         id: '671ee27c0000000000000001',
-        name: 'Demo User',
+        name: 'Demo Athlete',
         email: 'demo@fittrack.app',
-        goal: 'Improve Fitness',
+        goal: 'Build Muscle',
         fitnessLevel: 'Intermediate',
-        trainingDays: 4,
+        trainingDays: 6,
         units: 'kg',
-        currentWeightKg: 72,
+        currentWeightKg: 74.5,
+        age: 26,
+        heightCm: 178,
+        equipment: 'Commercial Gym',
+        workoutDuration: '45 min',
+        workoutSplit: 'Bro Split (Chest, Back, Legs, Shoulders, Arms)',
+        futureWorkoutPlan: 'Chest Hypertrophy & Density',
+        nextWorkoutDay: 'Tuesday',
         toSafeJSON() {
           return {
             id: this.id,
@@ -145,6 +167,13 @@ router.post(
             trainingDays: this.trainingDays,
             units: this.units,
             currentWeightKg: this.currentWeightKg,
+            age: this.age,
+            heightCm: this.heightCm,
+            equipment: this.equipment,
+            workoutDuration: this.workoutDuration,
+            workoutSplit: this.workoutSplit,
+            futureWorkoutPlan: this.futureWorkoutPlan,
+            nextWorkoutDay: this.nextWorkoutDay,
             isDemo: true,
             demoMode: true,
           };

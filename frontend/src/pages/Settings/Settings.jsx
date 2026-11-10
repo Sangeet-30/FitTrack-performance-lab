@@ -1,9 +1,11 @@
+import { useState } from "react";
 import styles from "./Settings.module.css";
 import sharedStyles from "../../Shared.module.css";
 import { cx } from "../../utils/classNames.js";
 import { useDispatch, useSelector } from "react-redux";
 import { updatePreferences, setProfile } from "../../features/user/userSlice.js";
 import { apiRequest } from "../../services/api.js";
+import NoticeModal from "../../components/NoticeModal/NoticeModal.jsx";
 
 function Settings() {
   const dispatch = useDispatch();
@@ -12,10 +14,41 @@ function Settings() {
   const authUser = useSelector((state) => state.auth.user);
   const demoMode = useSelector((state) => state.auth.demoMode);
 
+  const isDemoUser = Boolean(
+    demoMode ||
+    user?.isDemo ||
+    authUser?.isDemo ||
+    authUser?.email === "demo@fittrack.app" ||
+    user?.email === "demo@fittrack.app"
+  );
+
+  const [notice, setNotice] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    eyebrow: "Demo Account",
+  });
+
+  const triggerDemoNotice = () => {
+    setNotice({
+      isOpen: true,
+      title: "Settings Read-Only",
+      message:
+        "Demo account settings and environment preferences cannot be modified. Create a personal athlete account to configure custom units, timer intervals, and notifications.",
+      eyebrow: "Demo Account",
+      type: "info",
+    });
+  };
+
   const handlePreferenceChange = (key, value) => {
+    if (isDemoUser) {
+      triggerDemoNotice();
+      return;
+    }
+
     dispatch(updatePreferences({ [key]: value }));
     // If unit changed, sync to backend profile too
-    if (key === "units" && !demoMode) {
+    if (key === "units") {
       apiRequest("/profile", {
         method: "PATCH",
         body: JSON.stringify({ units: value }),
@@ -28,7 +61,7 @@ function Settings() {
   };
 
   const level = user?.fitnessLevel || authUser?.fitnessLevel;
-  const athleteStatus = demoMode
+  const athleteStatus = isDemoUser
     ? "Demo Overview"
     : level
     ? `${level} Athlete`
@@ -42,7 +75,7 @@ function Settings() {
           label: "Email Notifications",
           key: "notifications",
           type: "checkbox",
-          readOnly: false,
+          readOnly: isDemoUser,
         },
         {
           label: "Athlete Status",
@@ -63,7 +96,7 @@ function Settings() {
             "Hindi",
             "日本語",
           ],
-          readOnly: false,
+          readOnly: isDemoUser,
         },
       ],
     },
@@ -75,13 +108,13 @@ function Settings() {
           key: "units",
           type: "select",
           options: ["kg", "lb"],
-          readOnly: false,
+          readOnly: isDemoUser,
         },
         {
           label: "Auto-Save Active Workouts",
           key: "autoSaveWorkouts",
           type: "checkbox",
-          readOnly: false,
+          readOnly: isDemoUser,
         },
         {
           label: "Inter-Set Rest Timer",
@@ -89,14 +122,14 @@ function Settings() {
           type: "select",
           options: [30, 60, 90, 120, 180],
           formatOption: (value) => `${value} seconds`,
-          readOnly: false,
+          readOnly: isDemoUser,
         },
         {
           label: "Workout Reminder Cadence",
           key: "workoutReminders",
           type: "select",
           options: ["Off", "Daily", "Weekdays", "Weekly"],
-          readOnly: false,
+          readOnly: isDemoUser,
         },
       ],
     },
@@ -108,19 +141,19 @@ function Settings() {
           key: "profileVisibility",
           type: "select",
           options: ["Private", "Public"],
-          readOnly: false,
+          readOnly: isDemoUser,
         },
         {
           label: "Share Analytics with Coach",
           key: "shareProgress",
           type: "checkbox",
-          readOnly: false,
+          readOnly: isDemoUser,
         },
         {
           label: "Two-Factor Authentication",
           key: "twoFactorAuth",
           type: "checkbox",
-          readOnly: false,
+          readOnly: isDemoUser,
         },
       ],
     },
@@ -137,6 +170,12 @@ function Settings() {
           <h1>Settings &amp; Environment</h1>
           <p>Configure units of measure, rest timer intervals, notifications, and telemetry options.</p>
         </div>
+
+        {isDemoUser && (
+          <span className={styles["demo-readonly-pill"]}>
+            🔒 Demo Settings (Read-Only)
+          </span>
+        )}
       </section>
 
       {/* SECTION 2: STATUS STRIP */}
@@ -182,7 +221,17 @@ function Settings() {
 
             <div className={styles["settings-list"]}>
               {section.fields.map((field) => (
-                <div key={field.label} className={styles["settings-row"]}>
+                <div
+                  key={field.label}
+                  className={`${styles["settings-row"]} ${
+                    isDemoUser ? styles["readonly-row"] : ""
+                  }`}
+                  onClick={() => {
+                    if (isDemoUser && field.type !== "info") {
+                      triggerDemoNotice();
+                    }
+                  }}
+                >
                   <span className={styles["settings-row-label"]}>{field.label}</span>
 
                   {field.type === "checkbox" ? (
@@ -193,6 +242,12 @@ function Settings() {
                           ? { opacity: 0.6, cursor: "not-allowed" }
                           : { cursor: "pointer" }
                       }
+                      onClick={(e) => {
+                        if (isDemoUser) {
+                          e.preventDefault();
+                          triggerDemoNotice();
+                        }
+                      }}
                     >
                       <input
                         type="checkbox"
@@ -229,6 +284,12 @@ function Settings() {
                           ? { opacity: 0.65, cursor: "not-allowed" }
                           : undefined
                       }
+                      onClick={(e) => {
+                        if (isDemoUser) {
+                          e.preventDefault();
+                          triggerDemoNotice();
+                        }
+                      }}
                       onChange={(event) => {
                         if (field.readOnly) return;
                         const value =
@@ -259,6 +320,17 @@ function Settings() {
           </article>
         ))}
       </section>
+
+      {/* Notice Dialog for Demo Mode Restrictions */}
+      <NoticeModal
+        isOpen={notice.isOpen}
+        title={notice.title}
+        message={notice.message}
+        eyebrow={notice.eyebrow}
+        type={notice.type || "info"}
+        isDemo={isDemoUser}
+        onClose={() => setNotice({ ...notice, isOpen: false })}
+      />
     </div>
   );
 }

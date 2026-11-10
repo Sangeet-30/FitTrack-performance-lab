@@ -442,6 +442,61 @@
   background: var(--accent-red-hover);
 }
 
+.create-custom-btn {
+  background: var(--accent-red);
+  color: #ffffff;
+  border: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px var(--accent-red-glow);
+}
+
+.create-custom-btn:hover {
+  background: var(--accent-red-hover);
+  transform: translateY(-1px);
+}
+
+.custom-badge {
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  color: var(--accent-red);
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.custom-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.custom-modal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
 /* Mobile Media Queries */
 @media (max-width: 768px) {
   .workouts-hero {

@@ -6,13 +6,20 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 const fallbackDemoUser = {
   _id: '671ee27c0000000000000001',
   id: '671ee27c0000000000000001',
-  name: 'Demo User',
+  name: 'Demo Athlete',
   email: 'demo@fittrack.app',
-  goal: 'Improve Fitness',
+  goal: 'Build Muscle',
   fitnessLevel: 'Intermediate',
-  trainingDays: 4,
+  trainingDays: 6,
   units: 'kg',
-  currentWeightKg: 72,
+  currentWeightKg: 74.5,
+  age: 26,
+  heightCm: 178,
+  equipment: 'Commercial Gym',
+  workoutDuration: '45 min',
+  workoutSplit: 'Bro Split (Chest, Back, Legs, Shoulders, Arms)',
+  futureWorkoutPlan: 'Chest Hypertrophy & Density',
+  nextWorkoutDay: 'Tuesday',
   isDemo: true,
   status: 'active',
   toSafeJSON() {
@@ -25,6 +32,13 @@ const fallbackDemoUser = {
       trainingDays: this.trainingDays,
       units: this.units,
       currentWeightKg: this.currentWeightKg,
+      age: this.age,
+      heightCm: this.heightCm,
+      equipment: this.equipment,
+      workoutDuration: this.workoutDuration,
+      workoutSplit: this.workoutSplit,
+      futureWorkoutPlan: this.futureWorkoutPlan,
+      nextWorkoutDay: this.nextWorkoutDay,
       isDemo: true,
       demoMode: true,
     };
@@ -38,29 +52,6 @@ export const protect = asyncHandler(async (req, res, next) => {
   }
 
   const isDemoEnabled = process.env.DEMO_MODE === 'true';
-
-  // Handle explicit demo-token
-  if (token === 'demo-token') {
-    if (!isDemoEnabled) {
-      return res.status(403).json({ message: 'Demo mode is not enabled in this deployment.' });
-    }
-    let demoUser = null;
-    if (mongoose.connection.readyState === 1) {
-      try {
-        demoUser = await User.findOne({ email: 'demo@fittrack.app' }).maxTimeMS(2500);
-      } catch (err) {
-        console.warn('Demo user lookup skipped:', err.message);
-      }
-    }
-    req.user = demoUser || fallbackDemoUser;
-    req.user.isDemo = true;
-    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method) && !req.path.includes('logout')) {
-      return res.status(403).json({
-        message: 'FitTrack Live Demo is in read-only overview mode. Creating or modifying data is disabled.',
-      });
-    }
-    return next();
-  }
 
   // Verify JWT signature
   let payload;

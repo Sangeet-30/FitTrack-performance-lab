@@ -4,6 +4,7 @@ import sharedStyles from "../../Shared.module.css";
 import styles from "./Nutrition.module.css";
 import { cx } from "../../utils/classNames.js";
 import { apiRequest } from "../../services/api.js";
+import NoticeModal from "../../components/NoticeModal/NoticeModal.jsx";
 
 const todayKey = () => {
   const date = new Date();
@@ -21,8 +22,45 @@ const emptyForm = {
   fat: "",
 };
 
+const DEMO_NUTRITION_ITEMS = [
+  {
+    name: "Steel-Cut Oats with Whey & Blueberries",
+    meal: "Breakfast",
+    calories: 520,
+    protein: 42,
+    carbs: 68,
+    fat: 10,
+  },
+  {
+    name: "Grilled Chicken Breast, Brown Rice & Broccoli",
+    meal: "Lunch",
+    calories: 680,
+    protein: 58,
+    carbs: 74,
+    fat: 12,
+  },
+  {
+    name: "Greek Yogurt Bowl with Almonds & Honey",
+    meal: "Snack",
+    calories: 290,
+    protein: 26,
+    carbs: 22,
+    fat: 11,
+  },
+  {
+    name: "Pan-Roasted Wild Salmon & Sweet Potato",
+    meal: "Dinner",
+    calories: 640,
+    protein: 46,
+    carbs: 52,
+    fat: 24,
+  },
+];
+
 function Nutrition() {
   const demoMode = useSelector((state) => state.auth.demoMode);
+  const authUser = useSelector((state) => state.auth.user);
+  const isDemoUser = Boolean(demoMode || authUser?.isDemo || authUser?.email === "demo@fittrack.app");
   const [dateKey, setDateKey] = useState(todayKey());
   const [log, setLog] = useState({
     items: [],
@@ -34,6 +72,9 @@ function Nutrition() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [editingMealIndex, setEditingMealIndex] = useState(null);
+  const [editingMealForm, setEditingMealForm] = useState(null);
+  const [deletingMealIndex, setDeletingMealIndex] = useState(null);
 
   const totals = useMemo(() => {
     return (log.items || []).reduce(
@@ -51,33 +92,56 @@ function Nutrition() {
     setLoading(true);
     try {
       const data = await apiRequest(`/nutrition?from=${date}&to=${date}`);
-      setLog(
-        data.items?.[0] || {
-          items: [],
-          waterMl: 0,
+      const fetched = data.items?.[0];
+      if (isDemoUser && (!fetched || !fetched.items || fetched.items.length === 0)) {
+        setLog({
+          items: DEMO_NUTRITION_ITEMS,
+          waterMl: 2750,
           calorieTarget: 2200,
-          proteinTarget: 140,
-        }
-      );
+          proteinTarget: 160,
+        });
+      } else {
+        setLog(
+          fetched || {
+            items: [],
+            waterMl: 0,
+            calorieTarget: 2200,
+            proteinTarget: 140,
+          }
+        );
+      }
       setMessage("");
     } catch (error) {
-      setMessage(
-        `${error.message} Check that the API is running and sign in again if needed.`
-      );
+      if (isDemoUser) {
+        setLog({
+          items: DEMO_NUTRITION_ITEMS,
+          waterMl: 2750,
+          calorieTarget: 2200,
+          proteinTarget: 160,
+        });
+      } else {
+        setMessage(
+          `${error.message} Check that the API is running and sign in again if needed.`
+        );
+      }
     } finally {
       setLoading(false);
     }
-  }, [dateKey]);
+  }, [dateKey, isDemoUser]);
 
   useEffect(() => {
     loadLog(dateKey);
   }, [dateKey, loadLog]);
 
   const saveLog = async (next) => {
-    if (demoMode) {
+    if (isDemoUser) {
       setMessage(
         "Demo Overview Mode: Saving nutrition logs is disabled in preview mode."
       );
+      return;
+    }
+    if (dateKey > todayKey()) {
+      setMessage("Cannot log or edit nutrition for a future date. Only previous and current dates are allowed.");
       return;
     }
     setSaving(true);
@@ -101,6 +165,10 @@ function Nutrition() {
     const nextKey = `${current.getFullYear()}-${String(
       current.getMonth() + 1
     ).padStart(2, "0")}-${String(current.getDate()).padStart(2, "0")}`;
+    if (nextKey > todayKey()) {
+      setDateKey(todayKey());
+      return;
+    }
     setDateKey(nextKey);
   };
 
@@ -133,6 +201,60 @@ function Nutrition() {
       calorieTarget: log.calorieTarget || 2200,
       proteinTarget: log.proteinTarget || 140,
     });
+
+  const handleStartEditMeal = (index, item) => {
+    setEditingMealIndex(index);
+    setEditingMealForm({
+      name: item.name || "",
+      meal: item.meal || "Breakfast",
+      calories: item.calories ?? "",
+      protein: item.protein ?? "",
+      carbs: item.carbs ?? "",
+      fat: item.fat ?? "",
+    });
+  };
+
+  const handleCloseEditMeal = () => {
+    setEditingMealIndex(null);
+    setEditingMealForm(null);
+  };
+
+  useEffect(() => {
+    if (editingMealIndex === null) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") handleCloseEditMeal();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [editingMealIndex]);
+
+  const handleSaveEditMeal = async (e) => {
+    e.preventDefault();
+    if (!editingMealForm || !editingMealForm.name.trim()) return;
+
+    const updatedItems = log.items.map((item, idx) => {
+      if (idx !== editingMealIndex) return item;
+      return {
+        ...item,
+        name: editingMealForm.name.trim(),
+        meal: editingMealForm.meal,
+        calories: Number(editingMealForm.calories) || 0,
+        protein: Number(editingMealForm.protein) || 0,
+        carbs: Number(editingMealForm.carbs) || 0,
+        fat: Number(editingMealForm.fat) || 0,
+      };
+    });
+
+    await saveLog({
+      items: updatedItems,
+      waterMl: log.waterMl || 0,
+      calorieTarget: log.calorieTarget || 2200,
+      proteinTarget: log.proteinTarget || 140,
+    });
+
+    setEditingMealIndex(null);
+    setEditingMealForm(null);
+  };
 
   const changeWater = (amount) =>
     saveLog({
@@ -178,12 +300,23 @@ function Nutrition() {
             type="date"
             className={styles.dateInput}
             value={dateKey}
-            onChange={(e) => setDateKey(e.target.value)}
+            max={todayKey()}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val > todayKey()) {
+                setDateKey(todayKey());
+                setMessage("Future dates are not allowed. Only today and previous dates can be tracked.");
+              } else {
+                setDateKey(val);
+              }
+            }}
             aria-label="Select log date"
           />
           <button
             type="button"
             className={styles.navArrowBtn}
+            disabled={dateKey >= todayKey()}
+            style={dateKey >= todayKey() ? { opacity: 0.35, cursor: "not-allowed" } : undefined}
             onClick={() => handleDateOffset(1)}
             aria-label="Next day"
           >
@@ -515,19 +648,207 @@ function Nutrition() {
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  className={styles.deleteBtn}
-                  disabled={saving}
-                  onClick={() => removeMeal(index)}
-                >
-                  Delete
-                </button>
+                <div className={styles.mealActions}>
+                  <button
+                    type="button"
+                    className={styles.editBtn}
+                    onClick={() => handleStartEditMeal(index, item)}
+                    title="Edit this meal entry"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.deleteBtn}
+                    disabled={saving}
+                    onClick={() => setDeletingMealIndex(index)}
+                    title="Delete this meal entry"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                    Delete
+                  </button>
+                </div>
               </article>
             ))}
           </div>
         )}
       </section>
+
+      {/* Delete Confirmation Modal */}
+      <NoticeModal
+        isOpen={deletingMealIndex !== null}
+        type="danger"
+        title="Delete Meal Entry"
+        message={
+          deletingMealIndex !== null && log.items[deletingMealIndex]
+            ? `Remove "${log.items[deletingMealIndex].name}" (${log.items[deletingMealIndex].meal}) from your nutrition records?`
+            : "Remove this meal from your nutrition records?"
+        }
+        confirmText="Delete Meal"
+        cancelText="Cancel"
+        onConfirm={async () => {
+          if (deletingMealIndex !== null) {
+            const idx = deletingMealIndex;
+            setDeletingMealIndex(null);
+            await removeMeal(idx);
+          }
+        }}
+        onClose={() => setDeletingMealIndex(null)}
+      />
+
+      {/* Edit Meal Modal */}
+      {editingMealIndex !== null && editingMealForm && (
+        <div className={styles.editModalBackdrop} onClick={handleCloseEditMeal}>
+          <div
+            className={styles.editModalCard}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-meal-modal-title"
+          >
+            <div className={styles.editModalHeader}>
+              <div>
+                <p className={cx([sharedStyles], "eyebrow accent")}>NUTRITION JOURNAL</p>
+                <h3 id="edit-meal-modal-title">Edit Meal Entry</h3>
+              </div>
+              <button
+                type="button"
+                className={styles.editModalCloseBtn}
+                onClick={handleCloseEditMeal}
+                aria-label="Close edit meal dialog"
+              >
+                &times;
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditMeal}>
+              <div className={styles.editModalBody}>
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="edit-meal-name">Food / Meal Name *</label>
+                  <input
+                    id="edit-meal-name"
+                    type="text"
+                    className={styles.modalFormInput}
+                    required
+                    maxLength={120}
+                    value={editingMealForm.name}
+                    onChange={(e) =>
+                      setEditingMealForm({ ...editingMealForm, name: e.target.value })
+                    }
+                    placeholder="e.g. Grilled Chicken & Jasmine Rice"
+                  />
+                </div>
+
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="edit-meal-time">Meal Time</label>
+                  <select
+                    id="edit-meal-time"
+                    className={styles.modalFormSelect}
+                    value={editingMealForm.meal}
+                    onChange={(e) =>
+                      setEditingMealForm({ ...editingMealForm, meal: e.target.value })
+                    }
+                  >
+                    <option value="Breakfast">Breakfast</option>
+                    <option value="Lunch">Lunch</option>
+                    <option value="Dinner">Dinner</option>
+                    <option value="Snack">Snack</option>
+                    <option value="Pre-Workout">Pre-Workout</option>
+                    <option value="Post-Workout">Post-Workout</option>
+                  </select>
+                </div>
+
+                <div className={styles.editModalRow4}>
+                  <div className={styles.fieldGroup}>
+                    <label htmlFor="edit-meal-calories">Calories (kcal)</label>
+                    <input
+                      id="edit-meal-calories"
+                      type="number"
+                      className={styles.modalFormInput}
+                      min="0"
+                      max="10000"
+                      value={editingMealForm.calories}
+                      onChange={(e) =>
+                        setEditingMealForm({ ...editingMealForm, calories: e.target.value })
+                      }
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className={styles.fieldGroup}>
+                    <label htmlFor="edit-meal-protein">Protein (g)</label>
+                    <input
+                      id="edit-meal-protein"
+                      type="number"
+                      className={styles.modalFormInput}
+                      min="0"
+                      max="500"
+                      value={editingMealForm.protein}
+                      onChange={(e) =>
+                        setEditingMealForm({ ...editingMealForm, protein: e.target.value })
+                      }
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className={styles.fieldGroup}>
+                    <label htmlFor="edit-meal-carbs">Carbs (g)</label>
+                    <input
+                      id="edit-meal-carbs"
+                      type="number"
+                      className={styles.modalFormInput}
+                      min="0"
+                      max="1000"
+                      value={editingMealForm.carbs}
+                      onChange={(e) =>
+                        setEditingMealForm({ ...editingMealForm, carbs: e.target.value })
+                      }
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className={styles.fieldGroup}>
+                    <label htmlFor="edit-meal-fat">Fat (g)</label>
+                    <input
+                      id="edit-meal-fat"
+                      type="number"
+                      className={styles.modalFormInput}
+                      min="0"
+                      max="500"
+                      value={editingMealForm.fat}
+                      onChange={(e) =>
+                        setEditingMealForm({ ...editingMealForm, fat: e.target.value })
+                      }
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.editModalFooter}>
+                <button
+                  type="button"
+                  className={cx([sharedStyles], "secondary-button")}
+                  onClick={handleCloseEditMeal}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={cx([sharedStyles], "primary-button")}
+                  disabled={saving}
+                >
+                  {saving ? "Saving…" : "Save Meal"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

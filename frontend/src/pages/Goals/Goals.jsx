@@ -4,6 +4,7 @@ import { apiRequest } from "../../services/api.js";
 import sharedStyles from "../../Shared.module.css";
 import styles from "./Goals.module.css";
 import { cx } from "../../utils/classNames.js";
+import NoticeModal from "../../components/NoticeModal/NoticeModal.jsx";
 
 const initialForm = {
   title: "",
@@ -14,27 +15,107 @@ const initialForm = {
   dueDate: "",
 };
 
+const DEMO_GOALS_LIST = [
+  {
+    _id: "demo-goal-1",
+    title: "Reach 100 kg Bench Press",
+    category: "Strength",
+    targetValue: 100,
+    currentValue: 80,
+    unit: "kg",
+    status: "active",
+  },
+  {
+    _id: "demo-goal-2",
+    title: "Squat 140 kg with Clean Depth",
+    category: "Strength",
+    targetValue: 140,
+    currentValue: 125,
+    unit: "kg",
+    status: "active",
+  },
+  {
+    _id: "demo-goal-3",
+    title: "Conventional Deadlift 180 kg",
+    category: "Strength",
+    targetValue: 180,
+    currentValue: 160,
+    unit: "kg",
+    status: "active",
+  },
+  {
+    _id: "demo-goal-4",
+    title: "Maintain 6 Training Sessions / Wk",
+    category: "Habit",
+    targetValue: 6,
+    currentValue: 5,
+    unit: "sessions",
+    status: "active",
+  },
+  {
+    _id: "demo-goal-5",
+    title: "Target Bodyweight 74 kg Lean",
+    category: "Body",
+    targetValue: 74,
+    currentValue: 74.5,
+    unit: "kg",
+    status: "active",
+  },
+  {
+    _id: "demo-goal-6",
+    title: "Overhead Barbell Press 65 kg",
+    category: "Strength",
+    targetValue: 65,
+    currentValue: 65,
+    unit: "kg",
+    status: "completed",
+  },
+];
+
 function Goals() {
   const demoMode = useSelector((state) => state.auth.demoMode);
+  const authUser = useSelector((state) => state.auth?.user);
+  const isDemoUser = Boolean(demoMode || authUser?.isDemo || authUser?.email === "demo@fittrack.app");
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [filter, setFilter] = useState("all"); // 'all', 'active', 'completed'
+  const [deletingGoal, setDeletingGoal] = useState(null);
+
+  // Edit Milestone Modal
+  const [editingGoal, setEditingGoal] = useState(null);
+  const [editForm, setEditForm] = useState({
+    title: "",
+    category: "Strength",
+    targetValue: "",
+    currentValue: "0",
+    unit: "kg",
+    dueDate: "",
+    status: "active",
+  });
 
   const loadGoals = useCallback(async () => {
     try {
       const data = await apiRequest("/goals");
-      setItems(data.items || []);
+      if (isDemoUser && (!data?.items || data.items.length === 0)) {
+        setItems(DEMO_GOALS_LIST);
+      } else {
+        setItems(data.items || []);
+      }
     } catch (error) {
-      setMessage(
-        `${error.message} Check that the API is running and sign in again if needed.`
-      );
+      if (isDemoUser) {
+        setItems(DEMO_GOALS_LIST);
+      } else {
+        setMessage(
+          `${error.message} Check that the API is running and sign in again if needed.`
+        );
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isDemoUser]);
 
   useEffect(() => {
     loadGoals();
@@ -42,7 +123,7 @@ function Goals() {
 
   const submitGoal = async (event) => {
     event.preventDefault();
-    if (demoMode) {
+    if (isDemoUser) {
       setMessage(
         "Demo Overview Mode: Creating new goals is disabled in preview mode."
       );
@@ -53,13 +134,23 @@ function Goals() {
     setMessage("");
 
     try {
+      let targetVal = form.targetValue === "" ? undefined : Number(form.targetValue);
+      let currentVal = Number(form.currentValue) || 0;
+      let statusVal = "active";
+      if (targetVal !== undefined && targetVal > 0 && currentVal > targetVal) {
+        currentVal = targetVal;
+      }
+      if (targetVal !== undefined && targetVal > 0 && currentVal >= targetVal) {
+        statusVal = "completed";
+      }
+
       const data = await apiRequest("/goals", {
         method: "POST",
         body: JSON.stringify({
           ...form,
-          targetValue:
-            form.targetValue === "" ? undefined : Number(form.targetValue),
-          currentValue: Number(form.currentValue) || 0,
+          targetValue: targetVal,
+          currentValue: currentVal,
+          status: statusVal,
           dueDate: form.dueDate || undefined,
         }),
       });
@@ -74,7 +165,7 @@ function Goals() {
   };
 
   const updateGoal = async (goal, patch) => {
-    if (demoMode) {
+    if (isDemoUser) {
       setMessage("Demo Overview Mode: Editing goals is disabled in preview mode.");
       return;
     }
@@ -91,12 +182,95 @@ function Goals() {
     }
   };
 
+  const handleStartEdit = (goal) => {
+    if (goal.status === "completed") {
+      setMessage("Completed milestones cannot be edited. Reopen the milestone first to modify it.");
+      return;
+    }
+    setEditingGoal(goal);
+    setEditForm({
+      title: goal.title || "",
+      category: goal.category || "Strength",
+      targetValue: goal.targetValue != null ? String(goal.targetValue) : "",
+      currentValue: goal.currentValue != null ? String(goal.currentValue) : "0",
+      unit: goal.unit || "kg",
+      dueDate: goal.dueDate ? new Date(goal.dueDate).toISOString().slice(0, 10) : "",
+      status: goal.status || "active",
+    });
+  };
+
+  const handleCloseEdit = () => {
+    setEditingGoal(null);
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    if (!editingGoal || !editForm.title.trim()) return;
+
+    let targetVal = editForm.targetValue === "" ? 0 : Number(editForm.targetValue);
+    let currentVal = Number(editForm.currentValue) || 0;
+    // Disallow progress exceeding target (e.g. no 82/80 kg)
+    if (targetVal > 0 && currentVal > targetVal) {
+      currentVal = targetVal;
+    }
+    let nextStatus = editForm.status;
+    if (targetVal > 0 && currentVal >= targetVal && nextStatus !== "completed") {
+      nextStatus = "completed";
+    }
+
+    const patch = {
+      title: editForm.title.trim(),
+      category: editForm.category,
+      targetValue: targetVal,
+      currentValue: currentVal,
+      unit: (editForm.unit || "kg").trim(),
+      dueDate: editForm.dueDate ? new Date(editForm.dueDate).toISOString() : undefined,
+      status: nextStatus,
+    };
+
+    if (isDemoUser) {
+      setItems((current) =>
+        current.map((item) =>
+          item._id === editingGoal._id ? { ...item, ...patch } : item
+        )
+      );
+      setEditingGoal(null);
+      setMessage("Milestone updated in preview mode.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const data = await apiRequest(`/goals/${editingGoal._id}`, {
+        method: "PATCH",
+        body: JSON.stringify(patch),
+      });
+      setItems((current) =>
+        current.map((item) => (item._id === editingGoal._id ? data.item : item))
+      );
+      setEditingGoal(null);
+      setMessage("Milestone goal updated successfully.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!editingGoal) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") handleCloseEdit();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [editingGoal]);
+
   const deleteGoal = async (goal) => {
-    if (demoMode) {
+    if (isDemoUser) {
       setMessage("Demo Overview Mode: Deleting goals is disabled in preview mode.");
       return;
     }
-    if (!window.confirm(`Delete milestone “${goal.title}”?`)) return;
 
     try {
       await apiRequest(`/goals/${goal._id}`, { method: "DELETE" });
@@ -304,12 +478,14 @@ function Goals() {
           <div className={styles.goalsGrid}>
             {filteredItems.map((goal) => {
               const target = Number(goal.targetValue) || 0;
-              const current = Number(goal.currentValue) || 0;
+              const rawCurrent = Number(goal.currentValue) || 0;
+              const isDone = goal.status === "completed";
+              // When a goal is marked completed, display the completed target weight
+              const current = isDone && target > 0 && rawCurrent < target ? target : rawCurrent;
               const percent =
                 target > 0
                   ? Math.min(100, Math.round((current / target) * 100))
-                  : 0;
-              const isDone = goal.status === "completed" || percent >= 100;
+                  : isDone ? 100 : 0;
 
               return (
                 <article
@@ -325,7 +501,7 @@ function Goals() {
                         isDone ? styles.statusCompleted : styles.statusActive
                       }`}
                     >
-                      {isDone ? "✓ Achieved" : "In Progress"}
+                      {isDone ? "✓ Completed" : "In Progress"}
                     </span>
                   </div>
 
@@ -367,22 +543,39 @@ function Goals() {
                             className={styles.inlineProgressInput}
                             type="number"
                             min="0"
+                            max={target > 0 ? target : undefined}
                             step="any"
-                            value={goal.currentValue ?? 0}
-                            onChange={(e) =>
+                            disabled={isDone || goal.status === "completed"}
+                            style={isDone || goal.status === "completed" ? { opacity: 0.7, cursor: "not-allowed" } : undefined}
+                            value={isDone && rawCurrent < target ? target : (goal.currentValue ?? 0)}
+                            onChange={(e) => {
+                              let val = e.target.value;
+                              if (val !== "" && target > 0 && Number(val) > target) {
+                                val = String(target);
+                              }
                               setItems((currentItems) =>
                                 currentItems.map((item) =>
                                   item._id === goal._id
-                                    ? { ...item, currentValue: e.target.value }
+                                    ? { ...item, currentValue: val }
                                     : item
                                 )
-                              )
-                            }
-                            onBlur={(e) =>
-                              updateGoal(goal, {
-                                currentValue: Number(e.target.value) || 0,
-                              })
-                            }
+                              );
+                            }}
+                            onBlur={(e) => {
+                              let num = Number(e.target.value) || 0;
+                              if (num < 0) num = 0;
+                              if (target > 0 && num >= target) {
+                                num = target;
+                                updateGoal(goal, {
+                                  currentValue: num,
+                                  status: "completed",
+                                });
+                              } else {
+                                updateGoal(goal, {
+                                  currentValue: num,
+                                });
+                              }
+                            }}
                           />
                           <span>{goal.unit}</span>
                         </div>
@@ -394,20 +587,42 @@ function Goals() {
                     <button
                       type="button"
                       className={styles.toggleBtn}
-                      onClick={() =>
+                      onClick={() => {
+                        const isCompleted = goal.status === "completed";
+                        const nextStatus = isCompleted ? "active" : "completed";
+                        const nextValue = nextStatus === "completed" && target > 0 ? target : goal.currentValue;
                         updateGoal(goal, {
-                          status:
-                            goal.status === "completed" ? "active" : "completed",
-                        })
-                      }
+                          status: nextStatus,
+                          currentValue: nextValue,
+                        });
+                      }}
                     >
                       {goal.status === "completed" ? "Reopen" : "Mark Complete"}
                     </button>
+                    {!isDone && goal.status !== "completed" && (
+                      <button
+                        type="button"
+                        className={styles.editBtn}
+                        onClick={() => handleStartEdit(goal)}
+                        title="Edit this milestone"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                        Edit
+                      </button>
+                    )}
                     <button
                       type="button"
                       className={styles.deleteBtn}
-                      onClick={() => deleteGoal(goal)}
+                      onClick={() => setDeletingGoal(goal)}
+                      title="Delete this milestone"
                     >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      </svg>
                       Delete
                     </button>
                   </div>
@@ -417,6 +632,187 @@ function Goals() {
           </div>
         )}
       </section>
+
+      {/* Delete Confirmation Modal */}
+      <NoticeModal
+        isOpen={Boolean(deletingGoal)}
+        type="danger"
+        title="Delete Milestone"
+        message={
+          deletingGoal
+            ? `Delete milestone "${deletingGoal.title}"? This milestone and its progress history will be removed.`
+            : "Delete milestone? This milestone and its progress history will be removed."
+        }
+        confirmText="Delete Milestone"
+        cancelText="Cancel"
+        onConfirm={async () => {
+          if (!deletingGoal) return;
+          const g = deletingGoal;
+          setDeletingGoal(null);
+          await deleteGoal(g);
+        }}
+        onClose={() => setDeletingGoal(null)}
+      />
+
+      {/* Edit Milestone Modal */}
+      {editingGoal && (
+        <div
+          className={styles.editModalBackdrop}
+          onClick={handleCloseEdit}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className={styles.editModalCard}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.editModalHeader}>
+              <div>
+                <p className={cx([sharedStyles], "eyebrow accent")}>Milestone Target</p>
+                <h3>Edit Milestone</h3>
+              </div>
+              <button
+                type="button"
+                className={styles.editModalCloseBtn}
+                onClick={handleCloseEdit}
+                aria-label="Close edit modal"
+              >
+                &times;
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit}>
+              <div className={styles.editModalBody}>
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="edit-goal-title">Milestone Objective *</label>
+                  <input
+                    id="edit-goal-title"
+                    className={styles.formInput}
+                    type="text"
+                    required
+                    maxLength={120}
+                    value={editForm.title}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                    placeholder="e.g. 100 kg Bench Press or 15 Pull-Ups"
+                  />
+                </div>
+
+                <div className={styles.editModalRow2}>
+                  <div className={styles.fieldGroup}>
+                    <label htmlFor="edit-goal-category">Focus Category</label>
+                    <select
+                      id="edit-goal-category"
+                      className={styles.formSelect}
+                      value={editForm.category}
+                      onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                    >
+                      <option>Strength</option>
+                      <option>Body</option>
+                      <option>Nutrition</option>
+                      <option>Consistency</option>
+                      <option>Cardio</option>
+                    </select>
+                  </div>
+
+                  <div className={styles.fieldGroup}>
+                    <label htmlFor="edit-goal-status">Status</label>
+                    <select
+                      id="edit-goal-status"
+                      className={styles.formSelect}
+                      value={editForm.status}
+                      onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                    >
+                      <option value="active">In Progress</option>
+                      <option value="completed">Completed</option>
+                      <option value="paused">Paused</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className={styles.editModalRow2}>
+                  <div className={styles.fieldGroup}>
+                    <label htmlFor="edit-target-value">Target Value</label>
+                    <input
+                      id="edit-target-value"
+                      className={styles.formInput}
+                      type="number"
+                      min="0"
+                      step="any"
+                      value={editForm.targetValue}
+                      onChange={(e) => setEditForm({ ...editForm, targetValue: e.target.value })}
+                      placeholder="e.g. 150"
+                    />
+                  </div>
+
+                  <div className={styles.fieldGroup}>
+                    <label htmlFor="edit-current-value">Current Progress</label>
+                    <input
+                      id="edit-current-value"
+                      className={styles.formInput}
+                      type="number"
+                      min="0"
+                      max={Number(editForm.targetValue) > 0 ? Number(editForm.targetValue) : undefined}
+                      step="any"
+                      value={editForm.currentValue}
+                      onChange={(e) => {
+                        let val = e.target.value;
+                        const tgt = Number(editForm.targetValue);
+                        if (val !== "" && tgt > 0 && Number(val) > tgt) {
+                          val = String(tgt);
+                        }
+                        setEditForm({ ...editForm, currentValue: val });
+                      }}
+                      placeholder="e.g. 120"
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.editModalRow2}>
+                  <div className={styles.fieldGroup}>
+                    <label htmlFor="edit-goal-unit">Unit of Measure</label>
+                    <input
+                      id="edit-goal-unit"
+                      className={styles.formInput}
+                      maxLength={24}
+                      value={editForm.unit}
+                      onChange={(e) => setEditForm({ ...editForm, unit: e.target.value })}
+                      placeholder="kg, reps, sessions"
+                    />
+                  </div>
+
+                  <div className={styles.fieldGroup}>
+                    <label htmlFor="edit-due-date">Target Deadline</label>
+                    <input
+                      id="edit-due-date"
+                      className={styles.formInput}
+                      type="date"
+                      value={editForm.dueDate}
+                      onChange={(e) => setEditForm({ ...editForm, dueDate: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.editModalFooter}>
+                <button
+                  type="button"
+                  className={cx([sharedStyles], "secondary-button")}
+                  onClick={handleCloseEdit}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={cx([sharedStyles], "primary-button")}
+                  disabled={saving}
+                >
+                  {saving ? "Saving…" : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

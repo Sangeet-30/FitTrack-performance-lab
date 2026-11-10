@@ -193,13 +193,19 @@ function AppShell() {
   };
 
   // Listen for open-log event from any page or child button
+  const [logInitialData, setLogInitialData] = useState(null);
+
   useEffect(() => {
-    const handleOpen = () => setIsLogModalOpen(true);
+    const handleOpen = (e) => {
+      setLogInitialData(e?.detail || null);
+      setIsLogModalOpen(true);
+    };
     window.addEventListener("fittrack:open-log", handleOpen);
     return () => window.removeEventListener("fittrack:open-log", handleOpen);
   }, []);
 
   const handleOpenLogModal = () => {
+    setLogInitialData(null);
     setIsLogModalOpen(true);
   };
 
@@ -648,7 +654,11 @@ function AppShell() {
         <Suspense fallback={null}>
           <QuickLogModal
             isOpen={isLogModalOpen}
-            onClose={() => setIsLogModalOpen(false)}
+            initialData={logInitialData}
+            onClose={() => {
+              setIsLogModalOpen(false);
+              setLogInitialData(null);
+            }}
           />
         </Suspense>
       )}

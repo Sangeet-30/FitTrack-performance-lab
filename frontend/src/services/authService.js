@@ -2,15 +2,22 @@ import { apiRequest } from './api.js';
 
 export const demoAuthUser = {
   id: 'demo-user',
-  name: 'Demo User',
+  name: 'Demo Athlete',
   email: 'demo@fittrack.app',
   demoMode: true,
   isReadOnly: true,
   fitnessLevel: 'Intermediate',
   goal: 'Build Muscle',
-  trainingDays: 4,
+  trainingDays: 6,
   units: 'kg',
-  currentWeightKg: 72,
+  currentWeightKg: 74.5,
+  age: 26,
+  heightCm: 178,
+  equipment: 'Commercial Gym',
+  workoutDuration: '45 min',
+  workoutSplit: 'Bro Split (Chest, Back, Legs, Shoulders, Arms)',
+  futureWorkoutPlan: 'Chest Hypertrophy & Density',
+  nextWorkoutDay: 'Tuesday',
 };
 
 export const startDemoOverviewSession = async () => {

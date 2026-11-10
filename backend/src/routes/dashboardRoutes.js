@@ -19,7 +19,7 @@ const getSampleDashboardData = (user) => {
     const d = new Date(startOfWeek);
     d.setDate(startOfWeek.getDate() + index);
     const dayDateStr = d.toISOString().slice(0, 10);
-    const done = index === 0 || index === 2 || index === 4;
+    const done = index < 6;
     return {
       day: name,
       date: dayDateStr,
@@ -32,82 +32,93 @@ const getSampleDashboardData = (user) => {
   return {
     user: {
       id: user?.id || 'demo-user',
-      name: user?.name || 'Demo User',
+      name: user?.name || 'Demo Athlete',
       email: user?.email || 'demo@fittrack.app',
       goal: user?.goal || 'Build Muscle',
       fitnessLevel: user?.fitnessLevel || 'Intermediate',
-      workoutSplit: user?.workoutSplit || 'Push / Pull / Legs',
-      futureWorkoutPlan: user?.futureWorkoutPlan || 'Chest & Triceps Hypertrophy',
-      nextWorkoutDay: user?.nextWorkoutDay || 'Tomorrow',
+      workoutSplit: user?.workoutSplit || 'Bro Split (Chest, Back, Legs, Shoulders, Arms)',
+      futureWorkoutPlan: user?.futureWorkoutPlan || 'Chest Hypertrophy & Density',
+      nextWorkoutDay: user?.nextWorkoutDay || 'Tuesday',
       units: user?.units || 'kg',
-      currentWeightKg: user?.currentWeightKg || 72,
+      currentWeightKg: user?.currentWeightKg || 74.5,
+      trainingDays: user?.trainingDays || 6,
+      workoutDuration: user?.workoutDuration || '45 min',
+      equipment: user?.equipment || 'Commercial Gym',
+    },
+    profileStatus: {
+      isComplete: true,
+      percent: 100,
+      missingFields: [],
     },
     stats: {
-      weeklyWorkoutsCount: 3,
-      weeklyGoalTarget: user?.trainingDays || 4,
-      streakDays: 5,
-      monthlyVolumeKg: 12450,
-      totalWorkoutCount: 18,
-      currentWeight: user?.currentWeightKg || 72,
-      targetWeight: 68,
+      weeklyWorkoutsCount: 5,
+      weeklyGoalTarget: user?.trainingDays || 6,
+      streakDays: 6,
+      monthlyVolumeKg: 14850,
+      totalWorkoutCount: 22,
+      currentWeight: user?.currentWeightKg || 74.5,
+      targetWeight: 72,
     },
     weeklyActivity,
     recentWorkouts: [
       {
         _id: 'sample-w1',
-        name: 'Upper Body Hypertrophy',
+        name: 'Back & Biceps Hypertrophy',
         category: 'Strength',
-        durationMinutes: 55,
-        totalVolume: 4200,
+        durationMinutes: 52,
+        totalVolume: 9840,
+        perceivedEffort: 8.5,
         exerciseCount: 5,
-        completedAt: new Date(Date.now() - 86400000).toISOString(),
+        completedAt: new Date(Date.now() - 36000000).toISOString(),
       },
       {
         _id: 'sample-w2',
-        name: 'High Intensity Intervals & Core',
-        category: 'Cardio',
-        durationMinutes: 35,
-        totalVolume: 0,
-        exerciseCount: 6,
-        completedAt: new Date(Date.now() - 172800000).toISOString(),
+        name: 'Heavy Chest & Triceps Press',
+        category: 'Strength',
+        durationMinutes: 48,
+        totalVolume: 8920,
+        perceivedEffort: 8,
+        exerciseCount: 5,
+        completedAt: new Date(Date.now() - 108000000).toISOString(),
       },
       {
         _id: 'sample-w3',
-        name: 'Posterior Chain & Deadlifts',
+        name: 'Lower Body Posterior Chain',
         category: 'Strength',
-        durationMinutes: 60,
-        totalVolume: 5100,
+        durationMinutes: 58,
+        totalVolume: 11450,
+        perceivedEffort: 9,
         exerciseCount: 4,
-        completedAt: new Date(Date.now() - 259200000).toISOString(),
+        completedAt: new Date(Date.now() - 194400000).toISOString(),
       },
     ],
     activeGoals: [
       {
         _id: 'sample-g1',
-        title: 'Reach 100kg Bench Press',
+        title: 'Reach 100 kg Bench Press',
         category: 'Strength',
         targetValue: 100,
-        currentValue: 85,
+        currentValue: 80,
         unit: 'kg',
-        progressPercent: 85,
+        progressPercent: 80,
       },
       {
         _id: 'sample-g2',
-        title: '4 Weekly Workout Sessions',
-        category: 'Habit',
-        targetValue: 4,
-        currentValue: 3,
-        unit: 'sessions',
-        progressPercent: 75,
+        title: 'Squat 140 kg Clean Depth',
+        category: 'Strength',
+        targetValue: 140,
+        currentValue: 125,
+        unit: 'kg',
+        progressPercent: 89,
       },
       {
         _id: 'sample-g3',
-        title: 'Target Bodyweight 68 kg',
-        category: 'Body',
-        targetValue: 68,
-        currentValue: 72,
-        unit: 'kg',
-        progressPercent: 60,
+        title: '6 Weekly Sessions Consistency',
+        category: 'Habit',
+        targetValue: 6,
+        currentValue: 5,
+        unit: 'sessions',
+        progressPercent: 83,
       },
     ],
   };
@@ -220,9 +231,17 @@ router.get(
       // Weight goal if present
       const weightGoal = activeGoals.find((g) => g.category === 'Body' || /weight/i.test(g.title));
 
+      // For demo athlete: if database has no recorded sessions or targets yet, return rich sample dashboard data
+      if ((req.user?.isDemo || req.user?.email === 'demo@fittrack.app') && recentWorkouts.length === 0 && activeGoals.length === 0) {
+        return res.json(getSampleDashboardData(req.user));
+      }
+
       const requiredProfileFields = ['name', 'email', 'goal', 'fitnessLevel', 'trainingDays', 'age', 'heightCm', 'currentWeightKg'];
       const missingFields = requiredProfileFields.filter((f) => req.user[f] == null || req.user[f] === '');
       const completionPercent = Math.round(((requiredProfileFields.length - missingFields.length) / requiredProfileFields.length) * 100);
+
+      const isDemo = Boolean(req.user?.isDemo || req.user?.email === 'demo@fittrack.app');
+      const effectiveTrainingDays = isDemo ? 6 : (req.user.trainingDays || 4);
 
       res.json({
         user: {
@@ -236,7 +255,7 @@ router.get(
           nextWorkoutDay: req.user.nextWorkoutDay || '',
           units: req.user.units || 'kg',
           currentWeightKg: req.user.currentWeightKg ?? null,
-          trainingDays: req.user.trainingDays || 4,
+          trainingDays: effectiveTrainingDays,
           workoutDuration: req.user.workoutDuration || '45 min',
           equipment: req.user.equipment || null,
         },
@@ -246,8 +265,8 @@ router.get(
           missingFields,
         },
         stats: {
-          weeklyWorkoutsCount: weekWorkouts.length,
-          weeklyGoalTarget: req.user.trainingDays || 4,
+          weeklyWorkoutsCount: isDemo ? (weekWorkouts.length || 5) : weekWorkouts.length,
+          weeklyGoalTarget: effectiveTrainingDays,
           streakDays,
           monthlyVolumeKg,
           totalWorkoutCount,

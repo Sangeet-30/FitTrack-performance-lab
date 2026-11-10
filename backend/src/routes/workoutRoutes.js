@@ -9,6 +9,45 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 const router = Router();
 router.use(protect);
 
+const DEMO_WORKOUTS_SAMPLE = [
+  {
+    _id: 'sample-w1',
+    name: 'Upper Body Power & Push',
+    category: 'Strength',
+    difficulty: 'Intermediate',
+    durationMinutes: 52,
+    totalVolume: 9840,
+    caloriesBurned: 420,
+    perceivedEffort: 8,
+    completedAt: new Date(Date.now() - 14400000).toISOString(),
+    notes: 'Bench felt explosive. Hit 80 kg for 4 clean sets.',
+  },
+  {
+    _id: 'sample-w2',
+    name: 'Lower Posterior Chain & Squats',
+    category: 'Hypertrophy',
+    difficulty: 'Intermediate',
+    durationMinutes: 58,
+    totalVolume: 12450,
+    caloriesBurned: 510,
+    perceivedEffort: 9,
+    completedAt: new Date(Date.now() - 100800000).toISOString(),
+    notes: 'Deep squat tempo 3-1-0. Great quad activation.',
+  },
+  {
+    _id: 'sample-w3',
+    name: 'Zone 2 Engine Conditioning',
+    category: 'Cardio',
+    difficulty: 'Intermediate',
+    durationMinutes: 45,
+    totalVolume: 0,
+    caloriesBurned: 440,
+    perceivedEffort: 7,
+    completedAt: new Date(Date.now() - 187200000).toISOString(),
+    notes: 'Maintained steady 138-142 bpm heart rate on rowing erg.',
+  },
+];
+
 // GET /api/workouts - List user's workouts with pagination and date filter
 router.get(
   '/',
@@ -17,8 +56,14 @@ router.get(
     const page = Math.max(Number.parseInt(req.query.page, 10) || 1, 1);
 
     if (mongoose.connection.readyState !== 1) {
-      if (req.user?.isDemo && process.env.DEMO_MODE === 'true') {
-        return res.json({ items: [], pagination: { page, limit, total: 0, pages: 0 } });
+      if ((req.user?.isDemo || req.user?.email === 'demo@fittrack.app') && process.env.DEMO_MODE === 'true') {
+        const filtered = DEMO_WORKOUTS_SAMPLE.filter(
+          (w) => !req.query.category || req.query.category === 'All' || w.category === req.query.category
+        );
+        return res.json({
+          items: filtered,
+          pagination: { page, limit, total: filtered.length, pages: Math.ceil(filtered.length / limit) },
+        });
       }
       return res.status(503).json({
         message: 'Database service is currently unavailable. Please check your connection and try again.',
@@ -44,6 +89,21 @@ router.get(
         .limit(limit),
       Workout.countDocuments(filter),
     ]);
+
+    if (total === 0 && (req.user?.isDemo || req.user?.email === 'demo@fittrack.app')) {
+      const demoFiltered = DEMO_WORKOUTS_SAMPLE.filter(
+        (w) => !req.query.category || req.query.category === 'All' || w.category === req.query.category
+      );
+      return res.json({
+        items: demoFiltered,
+        pagination: {
+          page: 1,
+          limit,
+          total: demoFiltered.length,
+          pages: 1,
+        },
+      });
+    }
 
     res.json({
       items,

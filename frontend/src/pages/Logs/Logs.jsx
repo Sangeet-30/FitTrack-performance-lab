@@ -9,6 +9,7 @@ import {
   updateWorkout,
   deleteWorkout,
 } from "../../services/workoutService.js";
+import { workouts as catalogWorkouts } from "../../data/workouts.js";
 
 const CATEGORIES = [
   "All",
@@ -68,6 +69,18 @@ const DEMO_LOGS = [
   },
 ];
 
+const calculateEstimatedCalories = (duration, category, effort) => {
+  const d = Number(duration) || 45;
+  const r = Number(effort) || 7;
+  let baseRate = 7.5;
+  if (category === "Cardio") baseRate = 10;
+  else if (category === "Conditioning") baseRate = 9;
+  else if (category === "Hypertrophy" || category === "Strength") baseRate = 7.5;
+  else if (category === "Mobility") baseRate = 4;
+  else baseRate = 6.5;
+  return Math.round(d * baseRate * (0.7 + (r / 10) * 0.6));
+};
+
 function Logs() {
   const demoMode = useSelector((state) => state.auth?.demoMode);
   const [workouts, setWorkouts] = useState([]);
@@ -90,6 +103,8 @@ function Logs() {
     notes: "",
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedWorkoutDetails, setSelectedWorkoutDetails] = useState(null);
+  const [deleteConfirmWorkout, setDeleteConfirmWorkout] = useState(null);
 
   // Notification Modal
   const [notice, setNotice] = useState({
@@ -200,15 +215,22 @@ function Logs() {
     setEditingWorkout(workout);
     const d = workout.completedAt ? new Date(workout.completedAt) : new Date();
     const formattedDate = d.toISOString().split("T")[0];
+    const duration = workout.durationMinutes ?? 45;
+    const category = workout.category || "Strength";
+    const effort = workout.perceivedEffort ?? 7;
+    const cals =
+      workout.caloriesBurned && workout.caloriesBurned > 0
+        ? workout.caloriesBurned
+        : calculateEstimatedCalories(duration, category, effort);
 
     setEditForm({
       name: workout.name || "",
-      category: workout.category || "Strength",
+      category,
       difficulty: workout.difficulty || "Intermediate",
-      durationMinutes: workout.durationMinutes ?? 45,
+      durationMinutes: duration,
       totalVolume: workout.totalVolume ?? 0,
-      perceivedEffort: workout.perceivedEffort ?? 7,
-      caloriesBurned: workout.caloriesBurned ?? 0,
+      perceivedEffort: effort,
+      caloriesBurned: cals,
       completedAt: formattedDate,
       notes: workout.notes || "",
     });
@@ -219,21 +241,59 @@ function Logs() {
     setEditingWorkout(null);
   };
 
+  // Reactive field update: automatically adjusts calories live when duration, category, or effort changes
+  const updateEditFormField = (field, value) => {
+    setEditForm((prev) => {
+      const next = { ...prev, [field]: value };
+      if (field === "durationMinutes" || field === "category" || field === "perceivedEffort") {
+        const rawDuration = field === "durationMinutes" ? value : prev.durationMinutes;
+        const d = Number(rawDuration);
+        const c = field === "category" ? value : prev.category;
+        const r = Number(field === "perceivedEffort" ? value : prev.perceivedEffort) || 7;
+        if (d > 0) {
+          next.caloriesBurned = calculateEstimatedCalories(d, c, r);
+        } else if (rawDuration === "") {
+          next.caloriesBurned = "";
+        }
+      }
+      return next;
+    });
+  };
+
   // Submit Edit Form
   const handleSaveEdit = async (e) => {
     e.preventDefault();
     if (!editForm.name.trim()) return;
 
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (editForm.completedAt && editForm.completedAt > todayStr) {
+      setNotice({
+        isOpen: true,
+        title: "Invalid Completion Date",
+        message: "Workout completion date cannot be in the future. Please select today or a previous date.",
+        eyebrow: "Validation",
+        type: "info",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
+      const parsedDuration = Number(editForm.durationMinutes) || 45;
+      const parsedEffort = Number(editForm.perceivedEffort) || 7;
+      let calculatedCalories = Number(editForm.caloriesBurned) || 0;
+      if (!calculatedCalories) {
+        calculatedCalories = calculateEstimatedCalories(parsedDuration, editForm.category, parsedEffort);
+      }
+
       const payload = {
         name: editForm.name.trim(),
         category: editForm.category,
         difficulty: editForm.difficulty,
-        durationMinutes: Number(editForm.durationMinutes) || 1,
+        durationMinutes: parsedDuration,
         totalVolume: Number(editForm.totalVolume) || 0,
-        perceivedEffort: Number(editForm.perceivedEffort) || 1,
-        caloriesBurned: Number(editForm.caloriesBurned) || 0,
+        perceivedEffort: parsedEffort,
+        caloriesBurned: calculatedCalories,
         completedAt: editForm.completedAt
           ? new Date(editForm.completedAt).toISOString()
           : new Date().toISOString(),
@@ -292,11 +352,15 @@ function Logs() {
     }
   };
 
-  // Delete Workout
-  const handleDeleteWorkout = async (workout) => {
-    if (!window.confirm(`Delete "${workout.name}" from your training logs?`)) {
-      return;
-    }
+  // Delete Workout Trigger
+  const handleDeleteWorkout = (workout) => {
+    setDeleteConfirmWorkout(workout);
+  };
+
+  const handleConfirmDeleteWorkout = async () => {
+    if (!deleteConfirmWorkout) return;
+    const workout = deleteConfirmWorkout;
+    setDeleteConfirmWorkout(null);
 
     try {
       if (demoMode) {
@@ -490,7 +554,12 @@ function Logs() {
                     CATEGORY_COLORS[w.category] || CATEGORY_COLORS.Other;
 
                   return (
-                    <tr key={w._id}>
+                    <tr
+                      key={w._id}
+                      className={styles["clickable-row"]}
+                      onClick={() => setSelectedWorkoutDetails(w)}
+                      title="Click to view full workout movements and details"
+                    >
                       <td style={{ whiteSpace: "nowrap", color: "var(--text-muted)", fontSize: "0.84rem" }}>
                         {formattedDate}
                       </td>
@@ -547,11 +616,14 @@ function Logs() {
                         {w.caloriesBurned ? `${w.caloriesBurned} kcal` : "—"}
                       </td>
                       <td>
-                        <div className={styles["actions-cell"]}>
+                        <div className={styles["actions-cell"]} onClick={(e) => e.stopPropagation()}>
                           <button
                             type="button"
                             className={styles["action-btn-edit"]}
-                            onClick={() => handleOpenEdit(w)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenEdit(w);
+                            }}
                             title="Edit this workout session"
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -563,7 +635,10 @@ function Logs() {
                           <button
                             type="button"
                             className={styles["action-btn-del"]}
-                            onClick={() => handleDeleteWorkout(w)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteWorkout(w);
+                            }}
                             title="Delete this workout log"
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -611,7 +686,6 @@ function Logs() {
       {editingWorkout && (
         <div
           className={styles["edit-modal-backdrop"]}
-          onClick={handleCloseEdit}
           role="dialog"
           aria-modal="true"
           aria-labelledby="edit-modal-title"
@@ -654,7 +728,7 @@ function Logs() {
                     id="edit-category"
                     value={editForm.category}
                     onChange={(e) =>
-                      setEditForm({ ...editForm, category: e.target.value })
+                      updateEditFormField("category", e.target.value)
                     }
                   >
                     <option value="Strength">Strength</option>
@@ -692,10 +766,7 @@ function Logs() {
                     max="600"
                     value={editForm.durationMinutes}
                     onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        durationMinutes: e.target.value,
-                      })
+                      updateEditFormField("durationMinutes", e.target.value)
                     }
                   />
                 </div>
@@ -722,9 +793,15 @@ function Logs() {
                     id="edit-date"
                     type="date"
                     value={editForm.completedAt}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, completedAt: e.target.value })
-                    }
+                    max={new Date().toISOString().slice(0, 10)}
+                    onChange={(e) => {
+                      const todayStr = new Date().toISOString().slice(0, 10);
+                      if (e.target.value > todayStr) {
+                        setEditForm({ ...editForm, completedAt: todayStr });
+                      } else {
+                        setEditForm({ ...editForm, completedAt: e.target.value });
+                      }
+                    }}
                   />
                 </div>
 
@@ -758,10 +835,7 @@ function Logs() {
                     step="1"
                     value={editForm.perceivedEffort}
                     onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        perceivedEffort: Number(e.target.value),
-                      })
+                      updateEditFormField("perceivedEffort", Number(e.target.value))
                     }
                   />
                   <span className={styles["rpe-value-badge"]}>
@@ -804,6 +878,188 @@ function Logs() {
           </div>
         </div>
       )}
+
+      {/* Workout Session Details Modal */}
+      {selectedWorkoutDetails && (
+        <div
+          className={styles["edit-modal-backdrop"]}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="details-modal-title"
+        >
+          <div
+            className={styles["details-modal-card"]}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles["modal-header"]}>
+              <div>
+                <span
+                  className={styles["badge-tag"]}
+                  style={{
+                    backgroundColor: `${CATEGORY_COLORS[selectedWorkoutDetails.category] || "#ef4444"}18`,
+                    color: CATEGORY_COLORS[selectedWorkoutDetails.category] || "var(--accent-red)",
+                    border: `1px solid ${CATEGORY_COLORS[selectedWorkoutDetails.category] || "#ef4444"}35`,
+                    marginBottom: 6,
+                    display: "inline-block",
+                  }}
+                >
+                  {selectedWorkoutDetails.category || "Strength"}
+                </span>
+                <h3 id="details-modal-title" style={{ margin: "4px 0 0" }}>
+                  {selectedWorkoutDetails.name}
+                </h3>
+                <small style={{ color: "var(--text-muted)" }}>
+                  Completed {new Date(selectedWorkoutDetails.completedAt || selectedWorkoutDetails.createdAt).toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </small>
+              </div>
+              <button
+                type="button"
+                className={styles["close-btn"]}
+                onClick={() => setSelectedWorkoutDetails(null)}
+                aria-label="Close details"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className={styles["details-stats-grid"]}>
+              <div className={styles["details-stat-box"]}>
+                <span className={styles["details-stat-label"]}>Duration</span>
+                <span className={styles["details-stat-val"]}>
+                  {selectedWorkoutDetails.durationMinutes ? `${selectedWorkoutDetails.durationMinutes} min` : "—"}
+                </span>
+              </div>
+              <div className={styles["details-stat-box"]}>
+                <span className={styles["details-stat-label"]}>Volume</span>
+                <span className={styles["details-stat-val"]}>
+                  {selectedWorkoutDetails.totalVolume ? `${selectedWorkoutDetails.totalVolume.toLocaleString()} kg` : "—"}
+                </span>
+              </div>
+              <div className={styles["details-stat-box"]}>
+                <span className={styles["details-stat-label"]}>Calories</span>
+                <span className={styles["details-stat-val"]}>
+                  {selectedWorkoutDetails.caloriesBurned ? `${selectedWorkoutDetails.caloriesBurned} kcal` : "—"}
+                </span>
+              </div>
+              <div className={styles["details-stat-box"]}>
+                <span className={styles["details-stat-label"]}>Effort (RPE)</span>
+                <span className={styles["details-stat-val"]}>
+                  {selectedWorkoutDetails.perceivedEffort ? `${selectedWorkoutDetails.perceivedEffort} / 10` : "—"}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <h4 style={{ margin: "16px 0 8px", fontSize: "0.95rem", fontWeight: 700, color: "var(--text-main)" }}>
+                Workout Exercises &amp; Movements
+              </h4>
+              {(() => {
+                const exercises = selectedWorkoutDetails.exercises || [];
+                if (exercises.length > 0) {
+                  return (
+                    <div className={styles["exercises-breakdown-list"]}>
+                      {exercises.map((ex, i) => (
+                        <div key={i} className={styles["exercise-breakdown-item"]}>
+                          <div>
+                            <span className={styles["exercise-name-strong"]}>{ex.name}</span>
+                            {ex.notes && <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>{ex.notes}</div>}
+                          </div>
+                          <span className={styles["exercise-specs-badge"]}>
+                            {ex.totalSets || ex.sets || 1} sets &times; {ex.reps || 1} reps {ex.weight ? `@ ${ex.weight} kg` : ""}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+
+                // Check if name matches catalog routine
+                const matchedCatalog = catalogWorkouts.find(
+                  (cw) => cw.title.toLowerCase() === (selectedWorkoutDetails.name || "").toLowerCase()
+                );
+
+                if (matchedCatalog && matchedCatalog.exercises) {
+                  return (
+                    <div>
+                      <p style={{ margin: "0 0 8px", fontSize: "0.82rem", color: "var(--text-muted)" }}>
+                        Standard catalog routine protocol ({matchedCatalog.focus || matchedCatalog.category}):
+                      </p>
+                      <div className={styles["exercises-breakdown-list"]}>
+                        {matchedCatalog.exercises.map((ex, i) => (
+                          <div key={i} className={styles["exercise-breakdown-item"]}>
+                            <div>
+                              <span className={styles["exercise-name-strong"]}>{ex.name}</span>
+                              {ex.notes && <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>{ex.notes}</div>}
+                            </div>
+                            <span className={styles["exercise-specs-badge"]}>
+                              {ex.sets} sets &times; {ex.reps} reps
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div style={{ padding: "14px", background: "var(--bg-card-subtle)", borderRadius: 10, color: "var(--text-muted)", fontSize: "0.86rem" }}>
+                    No individual movement breakdown was logged for this session. Use the Active Workout timer or detailed log form to capture exercise sets and reps.
+                  </div>
+                );
+              })()}
+            </div>
+
+            {selectedWorkoutDetails.notes && (
+              <div style={{ marginTop: 16 }}>
+                <h4 style={{ margin: "0 0 6px", fontSize: "0.82rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
+                  Session Notes
+                </h4>
+                <p style={{ margin: 0, padding: 12, background: "var(--bg-card-subtle)", borderRadius: 8, fontSize: "0.88rem", color: "var(--text-main)", fontStyle: "italic" }}>
+                  "{selectedWorkoutDetails.notes}"
+                </p>
+              </div>
+            )}
+
+            <div className={styles["modal-actions"]}>
+              <button
+                type="button"
+                className={cx([sharedStyles], "secondary-button")}
+                onClick={() => setSelectedWorkoutDetails(null)}
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className={cx([sharedStyles], "primary-button")}
+                onClick={() => {
+                  const w = selectedWorkoutDetails;
+                  setSelectedWorkoutDetails(null);
+                  handleOpenEdit(w);
+                }}
+              >
+                Edit Session
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <NoticeModal
+        isOpen={Boolean(deleteConfirmWorkout)}
+        type="danger"
+        title="Delete Workout Session"
+        message={`Delete "${deleteConfirmWorkout?.name}" from your training logs? This action cannot be undone.`}
+        confirmText="Delete Session"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDeleteWorkout}
+        onClose={() => setDeleteConfirmWorkout(null)}
+      />
 
       {/* Notice Dialog */}
       <NoticeModal

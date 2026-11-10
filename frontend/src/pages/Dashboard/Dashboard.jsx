@@ -12,7 +12,82 @@ import { setProfile } from "../../features/user/userSlice.js";
 import {
   isThreeDaySplit,
   getTodaySchedule,
+  SPLIT_SCHEDULES,
 } from "../../utils/splitSchedule.js";
+import { getUserCustomWorkouts } from "../../services/workoutService.js";
+
+const DEMO_DASHBOARD_WORKOUTS = [
+  {
+    id: "demo-w1",
+    date: "Today",
+    session: "Back & Biceps Hypertrophy",
+    type: "Strength",
+    duration: "52 min",
+    volume: "9,840 kg",
+    rpe: "8.5",
+    dotColor: "#dc2626",
+  },
+  {
+    id: "demo-w2",
+    date: "Yesterday",
+    session: "Heavy Chest & Shoulder Density",
+    type: "Strength",
+    duration: "48 min",
+    volume: "8,920 kg",
+    rpe: "8.0",
+    dotColor: "#dc2626",
+  },
+  {
+    id: "demo-w3",
+    date: "3 days ago",
+    session: "Quads & Calves Squat Focus",
+    type: "Strength",
+    duration: "58 min",
+    volume: "11,450 kg",
+    rpe: "9.0",
+    dotColor: "#dc2626",
+  },
+];
+
+const DEMO_DASHBOARD_GOALS = [
+  {
+    _id: "demo-g1",
+    title: "Reach 100 kg Bench Press",
+    category: "Strength",
+    targetValue: 100,
+    currentValue: 80,
+    unit: "kg",
+    progressPercent: 80,
+  },
+  {
+    _id: "demo-g2",
+    title: "Squat 140 kg Clean Depth",
+    category: "Strength",
+    targetValue: 140,
+    currentValue: 125,
+    unit: "kg",
+    progressPercent: 89,
+  },
+  {
+    _id: "demo-g3",
+    title: "6 Weekly Sessions Consistency",
+    category: "Habit",
+    targetValue: 6,
+    currentValue: 5,
+    unit: "sessions",
+    progressPercent: 83,
+  },
+];
+
+const DEMO_WEEKLY_ACTIVITY = [
+  { day: "Mon", count: 1, done: true },
+  { day: "Tue", count: 1, done: true },
+  { day: "Wed", count: 1, done: true },
+  { day: "Thu", count: 1, done: true },
+  { day: "Fri", count: 1, done: true },
+  { day: "Sat", count: 1, done: true },
+  { day: "Sun", count: 0, done: false },
+];
 
 function Dashboard() {
   const dispatch = useDispatch();
@@ -28,6 +103,7 @@ function Dashboard() {
   const [weeklyTarget, setWeeklyTarget] = useState(4);
   const [profileStatus, setProfileStatus] = useState(null);
   const [dashboardUser, setDashboardUser] = useState(null);
+  const [selectedRoutineOverride, setSelectedRoutineOverride] = useState(null);
 
   const [notice, setNotice] = useState({ isOpen: false, title: "", message: "" });
   const [dbOffline, setDbOffline] = useState(false);
@@ -40,12 +116,21 @@ function Dashboard() {
       const res = await fetchDashboardData();
       setDbOffline(false);
       if (res) {
+        const isDemo = Boolean(
+          demoMode ||
+          res?.user?.isDemo ||
+          res?.user?.email === "demo@fittrack.app" ||
+          userProfile?.email === "demo@fittrack.app"
+        );
+
         if (res.user) {
           setDashboardUser(res.user);
-          if (res.user.trainingDays) {
+          if (isDemo) {
+            setWeeklyTarget(6);
+          } else if (res.user.trainingDays) {
             setWeeklyTarget(res.user.trainingDays);
           }
-          dispatch(setProfile(res.user));
+          dispatch(setProfile(isDemo ? { ...res.user, trainingDays: 6 } : res.user));
         }
 
         if (res.profileStatus) {
@@ -53,18 +138,23 @@ function Dashboard() {
         }
 
         if (res.stats) {
-          setCompletedSessionsCount(res.stats.weeklyWorkoutsCount || 0);
-          if (res.stats.weeklyGoalTarget) {
+          setCompletedSessionsCount(res.stats.weeklyWorkoutsCount || (isDemo ? 5 : 0));
+          if (isDemo) {
+            setWeeklyTarget(6);
+          } else if (res.stats.weeklyGoalTarget) {
             setWeeklyTarget(res.stats.weeklyGoalTarget);
           }
         }
 
         if (Array.isArray(res.weeklyActivity)) {
-          setWeeklyActivity(res.weeklyActivity);
+          const hasAnyActivity = res.weeklyActivity.some((d) => d.done || d.count > 0);
+          setWeeklyActivity(isDemo && !hasAnyActivity ? DEMO_WEEKLY_ACTIVITY : res.weeklyActivity);
+        } else if (isDemo) {
+          setWeeklyActivity(DEMO_WEEKLY_ACTIVITY);
         }
 
         if (Array.isArray(res.recentWorkouts)) {
-          const mapped = res.recentWorkouts.map((w) => ({
+          let mapped = res.recentWorkouts.map((w) => ({
             id: w._id || String(Math.random()),
             date: w.completedAt
               ? new Date(w.completedAt).toLocaleDateString("en-US", {
@@ -80,17 +170,33 @@ function Dashboard() {
             rpe: w.perceivedEffort ? `${w.perceivedEffort}` : "—",
             dotColor: w.category === "Cardio" ? "#f59e0b" : "#dc2626",
           }));
+          if (mapped.length === 0 && isDemo) {
+            mapped = DEMO_DASHBOARD_WORKOUTS;
+          }
           setActivityList(mapped);
+        } else if (isDemo) {
+          setActivityList(DEMO_DASHBOARD_WORKOUTS);
         }
 
         if (Array.isArray(res.activeGoals)) {
-          setActiveGoals(res.activeGoals);
+          let goals = res.activeGoals;
+          if (goals.length === 0 && isDemo) {
+            goals = DEMO_DASHBOARD_GOALS;
+          }
+          setActiveGoals(goals);
+        } else if (isDemo) {
+          setActiveGoals(DEMO_DASHBOARD_GOALS);
+        }
+
+        if (isDemo && (!res.stats || !res.stats.weeklyWorkoutsCount)) {
+          setCompletedSessionsCount(5);
+          setWeeklyTarget(res?.user?.trainingDays || 6);
         }
       }
     } catch (err) {
       if (demoMode) {
         // High-fidelity fallback metrics for demo / preview exploration
-        setCompletedSessionsCount(4);
+        setCompletedSessionsCount(5);
         setWeeklyTarget(6);
         setActivityList([
           {
@@ -192,26 +298,48 @@ function Dashboard() {
 
   // Calculated Readiness Score based on real training history
   const readiness = useMemo(() => {
-    if (completedSessionsCount === 0) {
-      return {
-        score: 100,
-        headline: "Fully Rested.",
-        desc: "No training fatigue accumulated this week. Ready to attack your next session with maximal intensity.",
-      };
-    }
-    if (completedSessionsCount >= weeklyTarget) {
+    const latestWorkout = activityList?.[0];
+    const todayStr = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const isTodayLogged = latestWorkout && latestWorkout.date?.includes(todayStr);
+
+    if (isTodayLogged) {
+      const rpeNum = parseFloat(latestWorkout.rpe) || 7;
+      if (rpeNum >= 8.5) {
+        return {
+          score: 74,
+          headline: "High Training Load.",
+          desc: "Intensive training stimulus logged today. Central nervous system is under load. Prioritize protein intake, hydration, and 8+ hours of deep sleep.",
+        };
+      }
       return {
         score: 82,
-        headline: "Target Reached.",
-        desc: "High volume week completed. Focus on hydration, quality sleep, and light active recovery.",
+        headline: "Active Strain.",
+        desc: "Workout completed today. Moderate muscular strain accumulated. Good candidate for light active recovery or mobility work.",
       };
     }
+
+    if (completedSessionsCount >= weeklyTarget && weeklyTarget > 0) {
+      return {
+        score: 86,
+        headline: "Target Reached.",
+        desc: "Weekly training milestone hit! Energy systems are conditioned. Focus on quality replenishment before advancing volume.",
+      };
+    }
+
+    if (completedSessionsCount > 0) {
+      return {
+        score: 92,
+        headline: "Good to go.",
+        desc: "Training load and rest intervals are well balanced. Muscle recovery is sufficient and your CNS is primed for high performance.",
+      };
+    }
+
     return {
-      score: 90,
-      headline: "Good to go.",
-      desc: "Training load is well balanced. Central nervous system is primed for high performance.",
+      score: 98,
+      headline: "Fully Rested.",
+      desc: "Zero accumulated fatigue this training block. Musculoskeletal system is fully refreshed and primed to attack your workout with maximum intensity.",
     };
-  }, [completedSessionsCount, weeklyTarget]);
+  }, [activityList, completedSessionsCount, weeklyTarget]);
 
   // Readiness SVG strokeDashoffset calculation (circle perimeter = 314.16)
   const readinessOffset = useMemo(() => {
@@ -223,6 +351,41 @@ function Dashboard() {
   const userFuturePlan = dashboardUser?.futureWorkoutPlan || userProfile?.futureWorkoutPlan;
   const userNextDay = dashboardUser?.nextWorkoutDay || userProfile?.nextWorkoutDay;
   const fitnessLevel = dashboardUser?.fitnessLevel || userProfile?.fitnessLevel || "Intermediate";
+  const authUser = useSelector((state) => state.auth?.user);
+  const userId = authUser?._id || userProfile?._id || "athlete";
+  const isDemoUser = Boolean(
+    demoMode ||
+    authUser?.isDemo ||
+    authUser?.email === "demo@fittrack.app" ||
+    dashboardUser?.email === "demo@fittrack.app" ||
+    userProfile?.email === "demo@fittrack.app"
+  );
+  const effectiveWeeklyTarget = isDemoUser ? 6 : (weeklyTarget || 4);
+
+  // Available routines under athlete's split + custom workouts
+  const splitRoutines = useMemo(() => {
+    const list = [];
+    if (userSplit && SPLIT_SCHEDULES[userSplit]) {
+      const sched = SPLIT_SCHEDULES[userSplit].schedule;
+      Object.entries(sched).forEach(([day, item]) => {
+        if (!item.isRest && !list.some((r) => r.session === item.session)) {
+          list.push({ day, ...item });
+        }
+      });
+    }
+    const custom = getUserCustomWorkouts(userId);
+    custom.forEach((c) => {
+      list.push({
+        day: "Custom",
+        session: c.name,
+        category: c.category,
+        duration: `${c.duration} min`,
+        equipment: c.equipment || "Gym Equipment",
+        isCustom: true,
+      });
+    });
+    return list;
+  }, [userSplit, userId]);
 
   // Auto-schedule logic for 3-day splits (Mon / Wed / Fri training + Sunday mandatory rest)
   const todaySchedule = useMemo(() => {
@@ -249,6 +412,20 @@ function Dashboard() {
 
   // Next Session details based on user's split and planned future workout
   const nextSession = useMemo(() => {
+    if (selectedRoutineOverride) {
+      return {
+        title: selectedRoutineOverride.session,
+        split: userSplit,
+        dayTarget: selectedRoutineOverride.day || "Selected",
+        category: selectedRoutineOverride.category || "Strength",
+        duration: selectedRoutineOverride.duration || "45 min",
+        equipment: selectedRoutineOverride.equipment || "Commercial Gym",
+        description: `Selected routine under your ${userSplit}. Progressive overload focus.`,
+        isAutoScheduled: false,
+        isRest: false,
+      };
+    }
+
     // If today is a 3-day split training day, prioritize today's auto-scheduled workout
     if (todaySchedule && !todaySchedule.isRest) {
       const duration = dashboardUser?.workoutDuration || userProfile?.workoutDuration || "45 min";
@@ -438,7 +615,7 @@ function Dashboard() {
         </div>
         <div className={styles["status-badge-item"]}>
           <span className={styles["status-badge-label"]}>Weekly Target</span>
-          <strong className={styles["status-badge-val"]}>{weeklyTarget} Sessions / Wk</strong>
+          <strong className={styles["status-badge-val"]}>{effectiveWeeklyTarget} Sessions / Wk</strong>
         </div>
         <div className={styles["status-badge-item"]}>
           <span className={styles["status-badge-label"]}>Readiness Index</span>
@@ -510,6 +687,37 @@ function Dashboard() {
                   <span aria-hidden="true">⚙️</span> {nextSession.equipment}
                 </span>
               </div>
+
+              {splitRoutines.length > 0 && (
+                <div style={{ marginTop: 14, display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                    Plan Options:
+                  </span>
+                  {splitRoutines.map((routine) => {
+                    const isSelected = nextSession?.title === routine.session;
+                    return (
+                      <button
+                        key={routine.session}
+                        type="button"
+                        onClick={() => setSelectedRoutineOverride(routine)}
+                        style={{
+                          background: isSelected ? "var(--accent-red)" : "var(--bg-card-subtle)",
+                          color: isSelected ? "#ffffff" : "var(--text-main)",
+                          border: `1px solid ${isSelected ? "var(--accent-red)" : "var(--border-color)"}`,
+                          borderRadius: "6px",
+                          padding: "3px 8px",
+                          fontSize: "0.74rem",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        {isSelected ? "✓ " : ""}{routine.session}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <div className={styles["session-action-col"]}>
@@ -517,7 +725,25 @@ function Dashboard() {
                 type="button"
                 className={styles["start-workout-btn"]}
                 aria-label={nextSession.isRest ? "Log recovery session" : "Start today's scheduled workout"}
-                onClick={() => window.dispatchEvent(new CustomEvent("fittrack:open-log"))}
+                onClick={() => {
+                  if (nextSession.isRest) {
+                    window.dispatchEvent(
+                      new CustomEvent("fittrack:open-log", {
+                        detail: {
+                          name: nextSession.title || "Sunday Rest & Recovery",
+                          category: "Mobility",
+                          durationMinutes: 30,
+                        },
+                      })
+                    );
+                  } else {
+                    const slug = (nextSession.title || "workout")
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, "-")
+                      .replace(/^-|-$/g, "");
+                    navigate(`/workouts/${slug}/active`);
+                  }
+                }}
               >
                 {nextSession.isRest ? "▶ LOG RECOVERY" : "▶ START WORKOUT"}
               </button>
@@ -580,8 +806,8 @@ function Dashboard() {
               onClick={() =>
                 setNotice({
                   isOpen: true,
-                  title: "Training Readiness",
-                  message: readiness.desc,
+                  title: "Recovery & Readiness Index",
+                  message: `Current Readiness: ${readiness.score}/100 • ${readiness.headline}\n\nWhat this metric tracks:\n• Neuromuscular & CNS Load: Calculates how fresh your central nervous system is based on recent high-intensity training sessions (RPE ≥ 8.5).\n• Volume Fatigue Accumulation: Tracks total tonnage lifted and duration to alert you before systemic overtraining occurs.\n• Rest Window: Rewards 24–48h recovery intervals between heavy loading sessions to ensure muscle protein synthesis is maximized.\n\nRecommendation: ${readiness.desc}`,
                   type: "info",
                   isDemo: false,
                 })
@@ -663,14 +889,14 @@ function Dashboard() {
 
           <div className={styles["weekly-title-wrap"]}>
             <h2 className={styles["weekly-count-headline"]}>
-              {completedSessionsCount} OF {weeklyTarget} SESSIONS
+              {completedSessionsCount} OF {effectiveWeeklyTarget} SESSIONS
             </h2>
             <p className={styles["weekly-subtext"]}>
               {completedSessionsCount === 0
                 ? "No sessions recorded yet this week. Start strong today!"
-                : completedSessionsCount >= weeklyTarget
+                : completedSessionsCount >= effectiveWeeklyTarget
                 ? "Weekly training target reached! Outstanding consistency."
-                : `On track: ${weeklyTarget - completedSessionsCount} session${weeklyTarget - completedSessionsCount === 1 ? "" : "s"} remaining to hit your target.`}
+                : `On track: ${effectiveWeeklyTarget - completedSessionsCount} session${effectiveWeeklyTarget - completedSessionsCount === 1 ? "" : "s"} remaining to hit your target.`}
             </p>
           </div>
 
