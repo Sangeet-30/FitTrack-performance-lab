@@ -124,6 +124,113 @@ describe('Authentication and Protected Routes', () => {
     });
   });
 
+  describe('CORS and Production Cookie Persistence Flow', () => {
+    it('allows requests and preflight from the official Vercel production origin with credentials', async () => {
+      const vercelOrigin = 'https://fit-track-performance-lab.vercel.app';
+      const preflightRes = await request(app)
+        .options('/api/auth/demo')
+        .set('Origin', vercelOrigin)
+        .set('Access-Control-Request-Method', 'POST');
+
+      expect(preflightRes.status).toBe(204);
+      expect(preflightRes.headers['access-control-allow-origin']).toBe(vercelOrigin);
+      expect(preflightRes.headers['access-control-allow-credentials']).toBe('true');
+    });
+
+    it('issues SameSite=None and Secure HttpOnly cookie when configured for production cross-site requests', async () => {
+      const demoUserDoc = {
+        _id: '671ee27c0000000000000001',
+        id: '671ee27c0000000000000001',
+        name: 'Demo Athlete',
+        email: 'demo@fittrack.app',
+        trainingDays: 6,
+        status: 'active',
+        save: vi.fn().mockResolvedValue(true),
+        toSafeJSON() {
+          return { id: this.id, name: this.name, email: this.email };
+        },
+      };
+      vi.spyOn(User, 'findOne').mockResolvedValue(demoUserDoc);
+
+      const originalEnv = process.env.COOKIE_SAME_SITE;
+      try {
+        process.env.COOKIE_SAME_SITE = 'none';
+        const res = await request(app)
+          .post('/api/auth/demo')
+          .send({ guestName: 'Demo Tester' });
+
+        expect(res.status).toBe(200);
+        expect(res.headers['set-cookie']).toBeDefined();
+        const cookieStr = res.headers['set-cookie'].find((c) => c.includes('fittrack_token'));
+        expect(cookieStr).toBeDefined();
+        expect(cookieStr).toMatch(/HttpOnly/i);
+        expect(cookieStr).toMatch(/SameSite=None/i);
+        expect(cookieStr).toMatch(/Secure/i);
+        expect(cookieStr).toMatch(/Path=\//i);
+      } finally {
+        if (originalEnv) {
+          process.env.COOKIE_SAME_SITE = originalEnv;
+        } else {
+          delete process.env.COOKIE_SAME_SITE;
+        }
+      }
+    });
+
+    it('persists authentication across sequential requests: demo login -> /api/auth/me', async () => {
+      const demoUserDoc = {
+        _id: '671ee27c0000000000000001',
+        id: '671ee27c0000000000000001',
+        name: 'Demo Athlete',
+        email: 'demo@fittrack.app',
+        trainingDays: 6,
+        status: 'active',
+        save: vi.fn().mockResolvedValue(true),
+        toSafeJSON() {
+          return { id: this.id, name: this.name, email: this.email };
+        },
+      };
+      vi.spyOn(User, 'findOne').mockResolvedValue(demoUserDoc);
+      vi.spyOn(User, 'findById').mockReturnValue({
+        select: () => ({
+          maxTimeMS: () => Promise.resolve(demoUserDoc),
+        }),
+      });
+
+      // 1. Demo login succeeds and issues HttpOnly cookie
+      const demoRes = await request(app)
+        .post('/api/auth/demo')
+        .send({ guestName: 'Demo Tester' });
+      expect(demoRes.status).toBe(200);
+      expect(demoRes.headers['set-cookie']).toBeDefined();
+
+      const authCookie = demoRes.headers['set-cookie'].find((c) => c.includes('fittrack_token'));
+      expect(authCookie).toBeDefined();
+
+      // Extract cookie value for subsequent requests
+      const cookieValue = authCookie.split(';')[0];
+
+      // 2. /api/auth/me receives cookie and succeeds
+      const meRes = await request(app)
+        .get('/api/auth/me')
+        .set('Cookie', [cookieValue]);
+      expect(meRes.status).toBe(200);
+      expect(meRes.body.user.email).toBe('demo@fittrack.app');
+
+      // 3. Subsequent /api/auth/me remains authenticated
+      const meRes2 = await request(app)
+        .get('/api/auth/me')
+        .set('Cookie', [cookieValue]);
+      expect(meRes2.status).toBe(200);
+      expect(meRes2.body.user.name).toBe('Demo Athlete');
+
+      // 4. Logout clears session
+      const logoutRes = await request(app)
+        .post('/api/auth/logout')
+        .set('Cookie', [cookieValue]);
+      expect(logoutRes.status).toBe(200);
+    });
+  });
+
   describe('Protected Route Enforcement', () => {
     it('rejects unauthenticated requests to /api/workouts with 401', async () => {
       const res = await request(app).get('/api/workouts');

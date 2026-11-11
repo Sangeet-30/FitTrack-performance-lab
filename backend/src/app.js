@@ -39,12 +39,16 @@ app.set('trust proxy', 1);
 app.disable('x-powered-by');
 app.use(helmet());
 
-// CORS configuration: Strict whitelist matching CLIENT_URL / CLIENT_ORIGIN
+// CORS configuration: Strict whitelist matching CLIENT_URL / CLIENT_ORIGIN and production Vercel deployment
 const defaultDevOrigins = 'http://localhost:5173,http://localhost:4173,http://127.0.0.1:5173,http://127.0.0.1:4173';
-const rawOrigins = process.env.CLIENT_URL || process.env.CLIENT_ORIGIN || (isProd ? 'http://localhost:5173,http://localhost:4173' : defaultDevOrigins);
-const allowedOrigins = rawOrigins
-  .split(',')
-  .map((item) => item.trim())
+const productionVercelOrigin = 'https://fit-track-performance-lab.vercel.app';
+const envOrigins = [process.env.CLIENT_URL, process.env.CLIENT_ORIGIN].filter(Boolean).join(',');
+const rawOrigins = envOrigins || (isProd ? productionVercelOrigin : defaultDevOrigins);
+const allowedOrigins = [
+  ...rawOrigins.split(','),
+  productionVercelOrigin,
+]
+  .map((item) => item.trim().replace(/\/+$/, ''))
   .filter(Boolean);
 
 // Security: Reject wildcard '*' CORS in production when credentials: true
@@ -57,7 +61,8 @@ app.use(
     origin: (origin, callback) => {
       // Non-browser clients (server-to-server health probes, curl, mobile native) do not send an Origin header
       if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin) || (!isProd && allowedOrigins.includes('*'))) {
+      const normalizedOrigin = origin.trim().replace(/\/+$/, '');
+      if (allowedOrigins.includes(normalizedOrigin) || (!isProd && allowedOrigins.includes('*'))) {
         return callback(null, true);
       }
       const corsError = new Error(`CORS blocked: Origin '${origin}' is not authorized.`);

@@ -229,6 +229,53 @@ describe('Frontend Auth Service: Login, Signup, & Logout', () => {
       })
     );
   });
+
+  it('demonstrates demo session initialization and subsequent authenticated request pattern', async () => {
+    const mockDemoUser = {
+      id: 'demo-user',
+      name: 'Demo Athlete',
+      email: 'demo@fittrack.app',
+      demoMode: true,
+      isReadOnly: true,
+    };
+
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        message: 'Demo overview session started.',
+        user: mockDemoUser,
+      }),
+    });
+
+    const { startDemoOverviewSession } = await import('../src/services/authService.js');
+    const demoSession = await startDemoOverviewSession();
+    expect(demoSession.demoMode).toBe(true);
+    expect(demoSession.isReadOnly).toBe(true);
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/auth/demo'),
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'include',
+      })
+    );
+
+    // Subsequent request (e.g. /dashboard or /auth/me) also transmits credentials: 'include'
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ user: mockDemoUser }),
+    });
+
+    const user = await getCurrentUser();
+    expect(user.email).toBe('demo@fittrack.app');
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/auth/me'),
+      expect.objectContaining({
+        credentials: 'include',
+      })
+    );
+  });
 });
 
 describe('Frontend Protected Route Redirection Rules', () => {

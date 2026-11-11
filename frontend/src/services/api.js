@@ -1,4 +1,20 @@
-const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+const resolveApiBase = () => {
+  const envUrl = (import.meta.env.VITE_API_URL || '').trim();
+
+  // In production builds or live browser environments, route all requests via the first-party /api rewrite proxy.
+  // This turns authentication into a first-party cookie transaction, preventing third-party cookie
+  // blocking by Apple WebKit ITP on iOS Safari, Chrome for iOS, and privacy-hardened mobile browsers.
+  if (
+    typeof window !== 'undefined' &&
+    (import.meta.env.PROD || (window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'))
+  ) {
+    return '/api';
+  }
+
+  return (envUrl || 'http://localhost:5000/api').replace(/\/$/, '');
+};
+
+const API_BASE = resolveApiBase();
 
 // Clean up any legacy token that may have been stored in localStorage previously
 try {
