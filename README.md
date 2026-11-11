@@ -1,35 +1,111 @@
 # FitTrack Pro — Full-Stack Fitness Tracking Platform
 
-FitTrack Pro is a full-stack fitness tracking application built with **React 19, Node.js, Express.js and MongoDB**.
+**FitTrack Pro** is a full-stack fitness tracking application built with React, Node.js, Express.js, and MongoDB. It helps users manage workouts, monitor fitness goals, track body measurements, and maintain nutrition and hydration records through a modern, responsive dashboard.
 
-It helps users track workouts, fitness goals, body progress, nutrition and hydration through a responsive dashboard with light and dark themes.
+The platform combines workout planning, performance tracking, and fitness management into one application, featuring personalized dashboards, secure authentication, and light and dark themes.
 
-## Features
+🌐 **Live Demo:** https://fit-track-performance-lab.vercel.app/
 
-- **Dashboard:** Fitness overview, activity tracking and workout statistics.
-- **Workout Tracking:** Log workouts, exercises, sets, reps, weight and training volume.
-- **Goals:** Create fitness goals and track progress.
-- **Progress Tracking:** Monitor body weight, measurements and personal records.
-- **Nutrition:** Track daily calories, macronutrients and water intake.
-- **Authentication:** Secure registration, login and logout using JWT HttpOnly cookies.
-- **Demo Mode:** Explore the application through a read-only guest experience.
-- **Responsive Design:** Mobile, tablet and desktop support.
-- **Themes:** Light and dark mode.
+💻 **GitHub Repository:** https://github.com/Sangeet-30/FitTrack-performance-lab
 
-## Tech Stack
+---
 
-| Frontend | Backend | Database |
-|---|---|---|
-| React 19 | Node.js | MongoDB Atlas |
-| Vite | Express.js | Mongoose |
-| Redux Toolkit | JWT | |
-| React Router | Zod | |
-| CSS Modules | Helmet | |
+## ✨ Key Features
 
-## Project Structure
+### 🏠 Dashboard
+- Personalized fitness dashboard.
+- Daily workout schedule and training overview.
+- Workout statistics and training activity.
+- Recovery and readiness indicators.
+- Weekly training habit tracking.
+
+### 💪 Workout Management
+- Browse 14 structured workout programs.
+- Filter routines by muscle group and category.
+- Search workouts by name, muscle group, or equipment.
+- Filter programs by difficulty.
+- Create custom workout routines.
+- Track exercises, sets, reps, and weights.
+
+### 📋 Training Logs
+- Record completed workout sessions.
+- Track workout duration and training volume.
+- Monitor Rate of Perceived Exertion (RPE).
+- Search and filter workout history.
+- Edit and delete workout records.
+
+### 📊 Progress & Biometrics
+- Track body weight and measurements.
+- Maintain a body composition journal.
+- Visualize weight progression through charts.
+- Monitor personal fitness records.
+- Maintain historical progress checkpoints.
+
+### 🎯 Goals & Milestones
+- Create personalized fitness goals.
+- Set measurable performance targets.
+- Define target values and deadlines.
+- Track goal completion progress.
+- Monitor active and completed milestones.
+
+### 🥗 Nutrition & Hydration
+- Track daily calorie intake.
+- Monitor protein, carbohydrates, and fats.
+- Configure daily nutritional targets.
+- Record meals and snacks.
+- Track daily water consumption.
+
+### 👤 Athlete Profile
+- Personalized athlete profile.
+- Manage body measurements and fitness information.
+- Configure workout splits and training preferences.
+- Track weekly training targets.
+
+### ⚙️ Settings & Preferences
+- Light and dark theme support.
+- Metric and imperial measurement units.
+- Configurable rest timer intervals.
+- Notification preferences.
+- Workout auto-save settings.
+- Privacy and account preferences.
+
+### 🔐 Authentication & Security
+- User registration and login.
+- JWT-based authentication using HttpOnly cookies.
+- Secure password hashing with bcrypt.
+- Protected API routes.
+- User-specific data access.
+- Read-only demo mode for exploring the application.
+
+### 📱 Responsive Design
+- Responsive layouts for desktop, tablet, and mobile.
+- Reusable UI components.
+- Consistent interface across application sections.
+
+---
+
+## 🛠️ Tech Stack
+
+| Category | Technologies |
+|---|---|
+| Frontend | React 19, Vite |
+| State Management | Redux Toolkit |
+| Routing | React Router |
+| Styling | CSS Modules |
+| Backend | Node.js, Express.js |
+| Database | MongoDB Atlas, Mongoose |
+| Authentication | JWT, HttpOnly Cookies |
+| Password Security | bcrypt |
+| Validation | Zod |
+| Security | Helmet, CORS |
+| Deployment | Vercel, Render |
+
+---
+
+## 📁 Project Structure
 
 ```text
-Fit-track_app/
+FitTrack-performance-lab/
 │
 ├── backend/
 │   ├── src/
@@ -38,9 +114,10 @@ Fit-track_app/
 │   │   ├── models/          # Mongoose models
 │   │   ├── routes/          # API routes
 │   │   ├── utils/           # Helper functions
-│   │   ├── validation/      # Zod schemas
-│   │   ├── app.js           # Express configuration
+│   │   ├── validation/      # Zod validation schemas
+│   │   ├── app.js           # Express application
 │   │   └── server.js        # Server entry point
+│   │
 │   ├── test/                # Backend tests
 │   ├── .env.example
 │   └── package.json
@@ -56,6 +133,7 @@ Fit-track_app/
 │   │   ├── utils/           # Helper functions
 │   │   ├── App.jsx          # Routes and application setup
 │   │   └── main.jsx         # React entry point
+│   │
 │   ├── test/                # Frontend tests
 │   ├── .env.example
 │   ├── vercel.json
@@ -70,124 +148,192 @@ Fit-track_app/
 └── README.md
 ```
 
-
-## 📸 Screenshots
-
-| Dashboard (Dark Mode) | Workout Analytics & Logs |
-|:---:|:---:|
-| ![Dashboard Screen Placeholder](https://via.placeholder.com/800x450/0d0d10/ef4444?text=FitTrack+Dashboard+View) | ![Workouts Screen Placeholder](https://via.placeholder.com/800x450/0d0d10/ef4444?text=Workout+Logs+%26+Volume) |
-
-| Goals & Benchmarks | Responsive Mobile / Light Mode |
-|:---:|:---:|
-| ![Goals Screen Placeholder](https://via.placeholder.com/800x450/0d0d10/ef4444?text=Active+Milestones) | ![Mobile Screen Placeholder](https://via.placeholder.com/800x450/ffffff/dc2626?text=Light+Theme+%26+Mobile) |
-
 ---
 
-## Installation & Setup
+## 🚀 Getting Started
 
-**Prerequisites**
+### Prerequisites
+
+Make sure you have the following installed:
+
 - Node.js 22.12+
 - npm 10+
 - MongoDB Atlas account
+- Git
 
-**1. Clone the repository**
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/Fit-track_app.git
-cd Fit-track_app
+git clone https://github.com/Sangeet-30/FitTrack-performance-lab.git
+
+cd FitTrack-performance-lab
 ```
 
-**2. Install dependencies**
+### 2. Install Dependencies
 
 ```bash
 npm run install:all
 ```
 
-**3. Configure environment variables**
+### 3. Configure Environment Variables
+
+Create environment files from the provided examples:
 
 ```bash
 cp backend/.env.example backend/.env
+
 cp frontend/.env.example frontend/.env
 ```
 
-Configure your MongoDB connection and JWT secret in `backend/.env`.
+Configure the required environment variables.
 
-**4. Start the application**
+**Backend (`backend/.env`)**
+
+```env
+PORT=5000
+NODE_ENV=development
+
+MONGODB_URI=your_mongodb_connection_string
+
+JWT_SECRET=your_secure_jwt_secret
+JWT_EXPIRES_IN=7d
+
+CLIENT_URL=http://localhost:5173
+
+COOKIE_SAME_SITE=lax
+
+DEMO_MODE=true
+```
+
+**Frontend (`frontend/.env`)**
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+Replace example values with your actual configuration. Never commit environment files or production secrets.
+
+### 4. Start the Application
+
+Run the development environment:
 
 ```bash
 npm run dev
 ```
 
-Frontend: `http://localhost:5173`
+The application will be available at:
 
-Backend: `http://localhost:5000`
-
-## Environment Variables
-
-**Backend**
-
-| Variable | Description |
+| Service | URL |
 |---|---|
-| PORT | Backend server port |
-| NODE_ENV | Application environment |
-| MONGODB_URI | MongoDB connection string |
-| JWT_SECRET | JWT signing secret (32+ characters in production) |
-| JWT_EXPIRES_IN | Token expiration |
-| CLIENT_URL | Frontend origin |
-| COOKIE_SAME_SITE | Cookie SameSite policy |
-| DEMO_MODE | Enable or disable demo mode |
+| Frontend | http://localhost:5173 |
+| Backend | http://localhost:5000 |
 
-**Frontend**
+---
 
-| Variable | Description |
-|---|---|
-| VITE_API_URL | Backend API URL |
+## 🧪 Testing & Build
 
-## Testing & Build
+Run the following commands from the project root.
+
+**Run Tests**
 
 ```bash
-# Run all tests
 npm test
+```
 
-# Run lint checks
+**Run Lint Checks**
+
+```bash
 npm run lint
+```
 
-# Create production build
+**Create Production Build**
+
+```bash
 npm run build
 ```
 
-## Security
+---
 
-- JWT authentication using HttpOnly cookies.
-- Password hashing with bcrypt.
-- Protected API routes.
-- User-specific database access and isolation.
+## 🔒 Security
+
+Security considerations implemented in the application include:
+
+- JWT authentication with HttpOnly cookies.
+- Password hashing using bcrypt.
+- Protected backend API routes.
+- User-specific database access and data isolation.
 - Request validation using Zod.
-- CORS restrictions and Helmet security headers.
+- Security headers using Helmet.
+- Restricted Cross-Origin Resource Sharing (CORS).
 - Authentication rate limiting.
 - Production environment secret enforcement.
 
-## Deployment
+---
 
-| Service | Platform |
+## ☁️ Deployment
+
+The application is deployed using the following services:
+
+| Component | Platform |
 |---|---|
 | Frontend | Vercel |
 | Backend | Render |
 | Database | MongoDB Atlas |
 
-**Frontend configuration**
+### Frontend — Vercel
+
+Configure the following settings:
+
 - Root Directory: `frontend`
+- Framework: Vite
 - Build Command: `npm run build`
 - Output Directory: `dist`
-- Environment: `VITE_API_URL`
 
-**Backend configuration**
+Environment variable:
+
+```env
+VITE_API_URL=your_production_backend_url
+```
+
+### Backend — Render
+
+Configure the following settings:
+
 - Root Directory: `backend`
 - Build Command: `npm install`
 - Start Command: `npm run start`
 
-Configure the production environment variables, CORS origin and secure cookie settings before deployment.
+Configure the production environment variables, MongoDB connection, frontend CORS origin, and secure cookie settings.
 
-## License
+---
 
-This project is developed as a personal full-stack development portfolio project.
+## 📌 Future Improvements
+
+Potential enhancements for future versions:
+
+- Wearable device integration.
+- Advanced fitness analytics.
+- Workout recommendation engine.
+- Personal trainer and coach features.
+- More detailed performance reports.
+
+---
+
+## 👨‍💻 Author
+
+**Sangeet**
+
+Full-Stack Developer | React.js | Node.js | Express.js | MongoDB
+
+- GitHub: https://github.com/Sangeet-30
+- LinkedIn: https://www.linkedin.com/in/sangeet-a62094255
+
+---
+
+## 📄 License
+
+This project was developed as a personal full-stack development portfolio project.
+
+---
+
+**Built with ❤️ by Sangeet**
