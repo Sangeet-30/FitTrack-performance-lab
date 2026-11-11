@@ -1,0 +1,30 @@
+.logoWrapper {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.logo {
+  display: block;
+  object-fit: contain;
+  vertical-align: middle;
+  transition: opacity 0.15s ease;
+}
+
+/* Auto theme switching based on html.dark */
+.logoDark {
+  display: none;
+}
+
+.logoLight {
+  display: block;
+}
+
+:global(html.dark) .logoDark {
+  display: block;
+}
+
+:global(html.dark) .logoLight {
+  display: none;
+}

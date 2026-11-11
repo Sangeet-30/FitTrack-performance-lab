@@ -7,6 +7,7 @@ import { setProfile } from "../../features/user/userSlice.js";
 import { loginUser } from "../../services/authService.js";
 import PasswordInput from "../../components/PasswordInput/PasswordInput.jsx";
 import NoticeModal from "../../components/NoticeModal/NoticeModal.jsx";
+import BrandLogo from "../../components/Brand/BrandLogo.jsx";
 
 const initialForm = {
   email: "",
@@ -80,9 +81,8 @@ function Login() {
       {/* Left Performance Lab Panel (Split Screen - Image 1) */}
       <aside className={styles.leftPanel} aria-label="Brand performance panel">
         <div className={styles.leftHeader}>
-          <Link to="/" className={styles.leftLogo}>
-            FIT<span className={styles.leftLogoRed}>TRACK</span>
-            <small style={{ fontSize: "0.6rem", verticalAlign: "top", marginLeft: "2px" }}>&trade;</small>
+          <Link to="/" className={styles.leftLogo} title="FitTrack Pro Home">
+            <BrandLogo variant="full" mode="dark" height={34} />
           </Link>
           <span className={styles.leftLabBadge}>ATHLETIC PERFORMANCE LAB</span>
         </div>
@@ -179,9 +179,8 @@ function Login() {
           </Link>
 
           {/* Compact logo on Mobile (<768px) */}
-          <Link to="/" className={styles.mobileBrandBlock}>
-            <span className={styles.mobileBrandSlashes}>//</span>
-            <span>FITTRACK</span>
+          <Link to="/" className={styles.mobileBrandBlock} title="FitTrack Pro Home">
+            <BrandLogo variant="full" mode="auto" height={28} />
           </Link>
         </div>
 

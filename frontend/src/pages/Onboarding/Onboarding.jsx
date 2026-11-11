@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { setProfile } from "../../features/user/userSlice.js";
 import { apiRequest } from "../../services/api.js";
 import ThemeToggle from "../../components/ThemeToggle/ThemeToggle.jsx";
+import BrandLogo from "../../components/Brand/BrandLogo.jsx";
 
 const fitnessLevels = ["Beginner", "Intermediate", "Advanced"];
 const goalOptions = [
@@ -146,8 +147,8 @@ function Onboarding() {
         </div>
 
         <div className={cx([styles, sharedStyles], "auth-header")}>
-          <Link to="/" title="Go to FitTrack Home">
-            <div className={cx([styles, sharedStyles], "brand-mark")}>F</div>
+          <Link to="/" title="Go to FitTrack Home" style={{ display: "inline-flex", textDecoration: "none" }}>
+            <BrandLogo variant="symbol" mode="auto" height={38} />
           </Link>
           <div>
             <p className={cx([styles, sharedStyles], "eyebrow accent")}>

@@ -5,6 +5,7 @@ import { logout } from "../../features/auth/authSlice.js";
 import { clearProfile } from "../../features/user/userSlice.js";
 import { logoutUser } from "../../services/authService.js";
 import ThemeToggle from "../ThemeToggle/ThemeToggle.jsx";
+import BrandLogo from "../Brand/BrandLogo.jsx";
 import styles from "./AppShell.module.css";
 import sharedStyles from "../../Shared.module.css";
 import { cx } from "../../utils/classNames.js";
@@ -118,9 +119,9 @@ function AppShell() {
     });
   };
 
-  // Close menus on outside click
+  // Close menus on outside click, touch, or Escape key
   useEffect(() => {
-    function handleClickOutside(event) {
+    function handlePointerDown(event) {
       const inMobile = mobileMenuRef.current?.contains(event.target);
       const inDesktop = desktopMenuRef.current?.contains(event.target);
       if (!inMobile && !inDesktop) {
@@ -128,8 +129,23 @@ function AppShell() {
         setShowNotifications(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        setProfileMenuOpen(false);
+        setShowNotifications(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("touchstart", handlePointerDown, { passive: true });
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("touchstart", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   const displayName = useMemo(() => {
@@ -299,9 +315,19 @@ function AppShell() {
         )}
       >
         <div className={styles["brand-header"]}>
-          <Link to="/dashboard" className={styles["brand-link"]} title="FitTrack Dashboard">
-            <span className={styles["brand-slashes"]}>//</span>
-            <span className={styles["brand-text"]}>FITTRACK</span>
+          <Link to="/dashboard" className={styles["brand-link"]} title="FitTrack Pro Dashboard">
+            {isCollapsed ? (
+              <BrandLogo variant="symbol" mode="dark" height={26} />
+            ) : (
+              <>
+                <span className={styles["desktop-brand-logo"]}>
+                  <BrandLogo variant="full" mode="dark" height={28} />
+                </span>
+                <span className={styles["mobile-brand-logo"]}>
+                  <BrandLogo variant="full" mode="auto" height={28} />
+                </span>
+              </>
+            )}
           </Link>
           <div className={styles["header-controls"]} ref={mobileMenuRef}>
             <ThemeToggle className={styles["mobile-theme-btn"]} iconOnly={true} />

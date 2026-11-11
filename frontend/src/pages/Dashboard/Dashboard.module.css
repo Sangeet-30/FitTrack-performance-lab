@@ -4,6 +4,8 @@
   gap: 18px;
   width: 100%;
   max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* Athlete Status Strip */
@@ -17,14 +19,8 @@
   justify-content: space-between;
   gap: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-}
-
-@media (max-width: 1100px) {
-  .athlete-status-bar {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px 20px;
-  }
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .sr-only {
@@ -39,20 +35,12 @@
   border: 0;
 }
 
-@media (max-width: 560px) {
-  .athlete-status-bar {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-}
-
 .status-badge-item {
   display: flex;
   flex-direction: column;
   gap: 3px;
   min-width: 0;
-  flex-shrink: 0;
+  flex-shrink: 1;
 }
 
 .status-split-item {
@@ -101,14 +89,6 @@
 
 :global(html.dark) .status-val-amber {
   color: #fbbf24;
-}
-
-@media (max-width: 560px) {
-  .status-badge-val,
-  .status-split-val {
-    white-space: normal;
-    word-break: break-word;
-  }
 }
 
 /* Incomplete Profile Banner */
@@ -194,6 +174,8 @@
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   transition: border-color 0.2s ease;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .featured-session-card:hover {
@@ -216,6 +198,7 @@
   gap: 12px;
   flex: 1;
   max-width: 720px;
+  min-width: 0;
 }
 
 .session-header-badge-row {
@@ -256,6 +239,8 @@
   color: var(--text-main);
   letter-spacing: -0.02em;
   line-height: 1.2;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .session-headline-desc {
@@ -344,6 +329,8 @@
   grid-template-columns: 1fr 1fr;
   gap: 18px;
   align-items: stretch;
+  min-width: 0;
+  width: 100%;
 }
 
 .activity-goals-grid {
@@ -351,6 +338,8 @@
   grid-template-columns: 1.45fr 1fr;
   gap: 18px;
   align-items: stretch;
+  min-width: 0;
+  width: 100%;
 }
 
 /* Card General Styling */
@@ -363,6 +352,9 @@
   flex-direction: column;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .card:hover {
@@ -408,6 +400,7 @@
 /* WEEKLY TRAINING CARD */
 .weekly-title-wrap {
   margin-bottom: 16px;
+  min-width: 0;
 }
 
 .weekly-count-headline {
@@ -418,6 +411,7 @@
   color: var(--text-main);
   line-height: 1.15;
   text-transform: uppercase;
+  overflow-wrap: break-word;
 }
 
 .weekly-subtext {
@@ -425,6 +419,7 @@
   font-size: 0.9rem;
   color: var(--text-muted);
   line-height: 1.45;
+  overflow-wrap: break-word;
 }
 
 .chart-container {
@@ -434,6 +429,8 @@
   height: 160px;
   margin: 16px 0 16px;
   position: relative;
+  min-width: 0;
+  width: 100%;
 }
 
 .chart-y-axis {
@@ -451,6 +448,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .grid-line {
@@ -472,6 +470,7 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 12px;
   align-items: flex-end;
+  min-width: 0;
 }
 
 .bar-col {
@@ -684,10 +683,14 @@
 /* RECENT ACTIVITY TABLE CARD */
 .table-container {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  min-width: 0;
 }
 
 .activity-table {
   width: 100%;
+  min-width: 500px;
   border-collapse: collapse;
   text-align: left;
 }
@@ -766,6 +769,7 @@
   border-radius: 12px;
   padding: 14px 16px;
   transition: border-color 0.18s ease;
+  min-width: 0;
 }
 
 .goal-item:hover {
@@ -790,18 +794,22 @@
   flex-direction: column;
   flex: 1;
   gap: 4px;
+  min-width: 0;
 }
 
 .goal-title-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-width: 0;
 }
 
 .goal-name {
   font-size: 0.94rem;
   font-weight: 700;
   color: var(--text-main);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .goal-sub {
@@ -1020,61 +1028,251 @@
   cursor: not-allowed;
 }
 
-/* Responsive Layout */
+/* Comprehensive Responsive Layout across Desktop, Tablet, and Mobile */
 @media (max-width: 1024px) {
+  .athlete-status-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 20px;
+  }
   .featured-session-card {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 20px;
+  }
+  .session-main-col {
+    max-width: 100%;
+    width: 100%;
   }
   .session-action-col {
     width: 100%;
+    min-width: 0;
     flex-direction: row;
     flex-wrap: wrap;
+    gap: 10px;
+  }
+  .start-workout-btn,
+  .view-details-btn {
+    flex: 1 1 200px;
+    justify-content: center;
   }
   .two-col-grid,
   .activity-goals-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    gap: 14px;
+  }
+  .card {
+    padding: 20px 18px;
+  }
+  .featured-session-card {
+    padding: 22px 20px;
+  }
+  .session-headline-title {
+    font-size: 1.45rem;
+  }
+  .weekly-count-headline {
+    font-size: 1.55rem;
   }
 }
 
 @media (max-width: 640px) {
-  .athlete-hero {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 20px;
+  .athlete-status-bar {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
-  .athlete-hero-actions {
-    width: 100%;
-  }
-  .quick-log-btn,
-  .browse-routines-btn {
-    flex: 1;
-    justify-content: center;
+  .status-badge-val,
+  .status-split-val {
+    white-space: normal;
+    word-break: break-word;
   }
   .featured-session-card {
-    padding: 20px;
+    padding: 18px 16px;
   }
   .session-action-col {
     flex-direction: column;
+    gap: 8px;
   }
-  .recovery-gauge-split {
-    flex-direction: column;
-    align-items: flex-start;
+  .start-workout-btn,
+  .view-details-btn {
+    width: 100%;
+    flex: none;
   }
-}
-
-@media (max-width: 480px) {
-  .athlete-hero {
-    padding: 16px;
-  }
-
   .recovery-metrics-row {
     grid-template-columns: 1fr;
     gap: 8px;
   }
+  .sub-metric-box {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+  }
+  .sub-metric-name {
+    font-size: 0.74rem;
+  }
+  .sub-metric-val {
+    font-size: 1.05rem;
+  }
+  .bars-wrapper {
+    gap: 8px;
+  }
+  .card-header {
+    margin-bottom: 14px;
+  }
+}
 
+@media (max-width: 480px) {
+  .athlete-status-bar {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  .status-badge-val,
+  .status-split-val {
+    font-size: 0.86rem;
+    white-space: normal;
+    word-break: break-word;
+  }
   .featured-session-card {
-    padding: 16px;
+    padding: 16px 14px;
+    border-radius: 14px;
+    gap: 16px;
+  }
+  .session-headline-title {
+    font-size: 1.30rem;
+    line-height: 1.25;
+  }
+  .session-headline-desc {
+    font-size: 0.88rem;
+  }
+  .session-specs-strip {
+    gap: 6px;
+  }
+  .session-spec-pill {
+    font-size: 0.76rem;
+    padding: 5px 9px;
+  }
+  .card {
+    padding: 16px 14px;
+    border-radius: 14px;
+  }
+  .card-tag {
+    font-size: 0.70rem;
+  }
+  .card-link,
+  .card-link-btn {
+    font-size: 0.78rem;
+  }
+  .weekly-count-headline {
+    font-size: 1.35rem;
+  }
+  .weekly-subtext {
+    font-size: 0.84rem;
+  }
+  .recovery-gauge-split {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+  .recovery-desc {
+    align-items: center;
+  }
+  .recovery-headline {
+    font-size: 1.15rem;
+  }
+  .recovery-body {
+    font-size: 0.85rem;
+  }
+  .bars-wrapper {
+    gap: 5px;
+  }
+  .bar-track {
+    max-width: 22px;
+  }
+  .bar-label {
+    font-size: 0.70rem;
+  }
+  .chart-legend {
+    gap: 12px;
+    font-size: 0.74rem;
+  }
+  .profile-banner {
+    padding: 12px 14px;
+  }
+  .banner-cta {
+    width: 100%;
+    justify-content: center;
+  }
+  .goal-item {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  .goal-name {
+    font-size: 0.88rem;
+  }
+  .goal-sub {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .dashboard-container {
+    gap: 12px;
+  }
+  .athlete-status-bar {
+    padding: 10px 12px;
+  }
+  .featured-session-card {
+    padding: 14px 12px;
+    border-radius: 12px;
+  }
+  .session-headline-title {
+    font-size: 1.18rem;
+  }
+  .card {
+    padding: 14px 10px;
+    border-radius: 12px;
+  }
+  .weekly-count-headline {
+    font-size: 1.20rem;
+  }
+  .gauge-ring-wrap {
+    width: 104px;
+    height: 104px;
+  }
+  .gauge-svg {
+    width: 104px;
+    height: 104px;
+  }
+  .gauge-number {
+    font-size: 1.75rem;
+  }
+  .bars-wrapper {
+    gap: 3px;
+  }
+  .bar-track {
+    max-width: 16px;
+  }
+  .bar-label {
+    font-size: 0.64rem;
+  }
+  .sub-metric-box {
+    padding: 8px 10px;
+  }
+  .empty-state-box {
+    padding: 24px 12px;
+  }
+  .empty-headline {
+    font-size: 0.98rem;
+  }
+  .empty-desc {
+    font-size: 0.82rem;
   }
 }
 

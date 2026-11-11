@@ -6,6 +6,7 @@ import { loginSuccess } from "../../features/auth/authSlice.js";
 import { setProfile } from "../../features/user/userSlice.js";
 import { signupUser } from "../../services/authService.js";
 import PasswordInput from "../../components/PasswordInput/PasswordInput.jsx";
+import BrandLogo from "../../components/Brand/BrandLogo.jsx";
 
 const initialForm = {
   name: "",
@@ -98,8 +99,8 @@ function Signup() {
       {/* Left Performance Lab Panel (Split Screen - Image 2) */}
       <aside className={styles.leftPanel} aria-label="Brand performance panel">
         <div className={styles.leftHeader}>
-          <Link to="/" className={styles.leftLogo}>
-            FIT<span className={styles.leftLogoRed}>TRACK</span>
+          <Link to="/" className={styles.leftLogo} title="FitTrack Pro Home">
+            <BrandLogo variant="full" mode="dark" height={34} />
           </Link>
           <span className={styles.leftLabBadge}>SYSTEM OVERVIEW</span>
         </div>
@@ -210,9 +211,8 @@ function Signup() {
           </Link>
 
           {/* Compact logo on Mobile (<768px) */}
-          <Link to="/" className={styles.mobileBrandBlock}>
-            <span className={styles.mobileBrandSlashes}>//</span>
-            <span>FITTRACK</span>
+          <Link to="/" className={styles.mobileBrandBlock} title="FitTrack Pro Home">
+            <BrandLogo variant="full" mode="auto" height={28} />
           </Link>
         </div>
 

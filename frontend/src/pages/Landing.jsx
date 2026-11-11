@@ -7,6 +7,7 @@ import { clearProfile, setProfile } from "../features/user/userSlice.js";
 import { logoutUser, startDemoOverviewSession } from "../services/authService.js";
 import ThemeToggle from "../components/ThemeToggle/ThemeToggle.jsx";
 import NoticeModal from "../components/NoticeModal/NoticeModal.jsx";
+import BrandLogo from "../components/Brand/BrandLogo.jsx";
 
 function Landing() {
   const navigate = useNavigate();
@@ -57,9 +58,8 @@ function Landing() {
       <div className={styles.landingContainer}>
         {/* Navigation Bar - Cleaned: No 'How it works', 'Features', or 'Pricing' */}
         <header className={styles.landingNav}>
-          <Link to="/" className={styles.brandLogo}>
-            <span className={styles.brandSlashes}>//</span>
-            <span>FITTRACK</span>
+          <Link to="/" className={styles.brandLogo} title="FitTrack Pro - Athletic Training Lab">
+            <BrandLogo variant="full" mode="auto" height={34} />
           </Link>
 
           <div className={styles.navActions}>
